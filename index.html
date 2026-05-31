@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>建筑工程项目多智能体管理平台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="portal-shell">
+      <section class="hero">
+        <p class="eyebrow">Construction Multi-Agent V1</p>
+        <h1>建筑工程项目多智能体管理平台</h1>
+        <p class="hero-copy">
+          面向项目经理部和公司工程管理层的本地演示环境，包含公司多项目总览、项目级桌面端、现场 H5、内置 API、模型网关和 Agent Worker。
+        </p>
+        <div class="hero-actions">
+          <a class="primary-link" href="/admin-web/">打开桌面管理端</a>
+          <a class="secondary-link" href="/field-h5/">打开现场 H5</a>
+        </div>
+      </section>
+
+      <section class="status-grid">
+        <article class="status-card">
+          <span>运行单元</span>
+          <strong>4</strong>
+          <p>`admin-web` / `field-h5` / `api` / `worker-agent`</p>
+        </article>
+        <article class="status-card">
+          <span>Agent 数量</span>
+          <strong>6</strong>
+          <p>PMO、进度、安全、资料、技术、成本</p>
+        </article>
+        <article class="status-card">
+          <span>模型网关</span>
+          <strong id="provider-name">加载中</strong>
+          <p>支持 DeepSeek、OpenAI、私有模型占位</p>
+        </article>
+      </section>
+
+      <section class="layout-grid">
+        <article class="panel">
+          <div class="panel-header">
+            <h2>角色入口</h2>
+            <p id="persona-count">正在读取会话信息</p>
+          </div>
+          <div class="persona-list" id="persona-list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h2>平台能力</h2>
+            <p>当前演示范围</p>
+          </div>
+          <div class="capability-list">
+            <div class="capability-item">
+              <strong>公司层总览</strong>
+              <p>多项目横向对比、风险分布、资料完整度、Agent 预警摘要。</p>
+            </div>
+            <div class="capability-item">
+              <strong>项目层桌面端</strong>
+              <p>仪表盘、进度、资料、安全、技术成本、Agent 中心和站内消息。</p>
+            </div>
+            <div class="capability-item">
+              <strong>现场 H5</strong>
+              <p>巡检录入、整改反馈、资料快查、项目问答，适配移动端视口。</p>
+            </div>
+            <div class="capability-item">
+              <strong>Agent 编排</strong>
+              <p>同步问答与异步分析任务共用统一模型网关与项目上下文。</p>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

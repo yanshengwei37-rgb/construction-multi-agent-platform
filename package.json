@@ -1,0 +1,10 @@
+{
+  "name": "construction-multi-agent-platform",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node api/server.js",
+    "test": "node --test tests/platform.test.js"
+  }
+}

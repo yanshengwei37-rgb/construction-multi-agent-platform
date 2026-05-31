@@ -1,0 +1,276 @@
+:root {
+  --bg: #f4efe5;
+  --surface: #fffdf8;
+  --surface-soft: #efe8dd;
+  --ink: #203641;
+  --muted: #70808b;
+  --line: rgba(32, 54, 65, 0.12);
+  --blue: #145da0;
+  --green: #287b63;
+  --amber: #ba7a12;
+  --red: #b64f46;
+  --shadow: 0 18px 38px rgba(32, 54, 65, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(20, 93, 160, 0.14), transparent 18%),
+    linear-gradient(180deg, #faf7f0 0%, #f4efe5 100%);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.mobile-shell {
+  max-width: 520px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 18px 18px 92px;
+}
+
+.mobile-header,
+.mobile-hero,
+.mobile-panel,
+.mobile-card,
+.task-card,
+.doc-card,
+.message-card {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.mobile-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px;
+}
+
+.mobile-eyebrow {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mobile-header h1,
+.mobile-card h2,
+.mobile-panel h2,
+.task-card h3,
+.doc-card h3,
+.message-card h3 {
+  margin: 0;
+}
+
+.mobile-header select,
+.mobile-panel input,
+.mobile-panel select,
+.mobile-panel textarea,
+.mobile-panel button,
+.task-feedback textarea,
+.task-feedback select,
+.ask-row input,
+.ask-row button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(32, 54, 65, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+}
+
+.mobile-hero {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+  padding: 16px;
+}
+
+.mobile-card {
+  padding: 14px;
+  background: var(--surface-soft);
+}
+
+.mobile-card span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.mobile-card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 24px;
+}
+
+.mobile-content {
+  margin-top: 14px;
+}
+
+.mobile-panel {
+  padding: 18px;
+}
+
+.mobile-panel h2 {
+  font-size: 22px;
+}
+
+.mobile-panel p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.form-stack,
+.task-stack,
+.doc-stack,
+.chat-stack {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.mobile-panel textarea,
+.task-feedback textarea {
+  min-height: 110px;
+  padding: 12px 14px;
+  resize: vertical;
+}
+
+.primary-button,
+.secondary-button {
+  min-height: 44px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  font-weight: 700;
+}
+
+.primary-button {
+  color: #ffffff;
+  background: var(--blue);
+}
+
+.secondary-button {
+  color: var(--blue);
+  background: #ffffff;
+  border-color: rgba(20, 93, 160, 0.18);
+}
+
+.task-card,
+.doc-card,
+.message-card {
+  padding: 16px;
+}
+
+.task-card p,
+.doc-card p,
+.message-card p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.task-feedback {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tag.warning {
+  color: var(--amber);
+  background: rgba(186, 122, 18, 0.12);
+}
+
+.tag.high {
+  color: var(--red);
+  background: rgba(182, 79, 70, 0.12);
+}
+
+.tag.normal,
+.tag.closed {
+  color: var(--green);
+  background: rgba(40, 123, 99, 0.12);
+}
+
+.ask-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.mobile-tabs {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(255, 253, 248, 0.94);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+}
+
+.mobile-tab {
+  min-height: 44px;
+  border: 0;
+  border-radius: 14px;
+  color: var(--muted);
+  background: transparent;
+  font-weight: 700;
+}
+
+.mobile-tab.active {
+  color: #ffffff;
+  background: var(--blue);
+}
+
+.fade-in {
+  animation: fadeIn 240ms ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

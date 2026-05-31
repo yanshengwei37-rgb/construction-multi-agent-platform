@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>现场 H5 - 建筑工程项目多智能体管理平台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="mobile-shell">
+      <header class="mobile-header">
+        <div>
+          <p class="mobile-eyebrow">Field H5</p>
+          <h1 id="mobile-title">现场协同入口</h1>
+        </div>
+        <select id="mobile-project-select"></select>
+      </header>
+
+      <section class="mobile-hero" id="mobile-hero"></section>
+
+      <main class="mobile-content" id="mobile-view"></main>
+
+      <nav class="mobile-tabs">
+        <button class="mobile-tab active" data-tab="inspection">巡检录入</button>
+        <button class="mobile-tab" data-tab="tasks">整改反馈</button>
+        <button class="mobile-tab" data-tab="docs">资料快查</button>
+        <button class="mobile-tab" data-tab="ask">项目问答</button>
+      </nav>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

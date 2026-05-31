@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>桌面管理端 - 建筑工程项目多智能体管理平台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="admin-shell">
+      <aside class="sidebar">
+        <div class="brand-block">
+          <span class="brand-badge">V1</span>
+          <div>
+            <p class="brand-eyebrow">Admin Web</p>
+            <h1>工程项目多智能体平台</h1>
+          </div>
+        </div>
+
+        <section class="context-card" id="project-context-card"></section>
+
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="portfolio">项目群总览</button>
+          <button class="nav-item" data-view="dashboard">项目仪表盘</button>
+          <button class="nav-item" data-view="schedule">进度管理</button>
+          <button class="nav-item" data-view="documents">资料管理</button>
+          <button class="nav-item" data-view="safety">安全管理</button>
+          <button class="nav-item" data-view="tech-cost">技术成本</button>
+          <button class="nav-item" data-view="agents">Agent 中心</button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <p>现场端</p>
+          <a href="/field-h5/">打开 H5 巡检入口</a>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="scope-label" id="scope-label">公司层视图</p>
+            <h2 id="page-title">项目群总览</h2>
+          </div>
+
+          <div class="topbar-controls">
+            <label>
+              <span>角色</span>
+              <select id="persona-select"></select>
+            </label>
+            <label>
+              <span>模型通道</span>
+              <select id="provider-select"></select>
+            </label>
+            <label>
+              <span>项目</span>
+              <select id="project-select"></select>
+            </label>
+            <button id="refresh-button">刷新数据</button>
+          </div>
+        </header>
+
+        <section class="headline-strip" id="headline-strip"></section>
+
+        <div class="workspace-grid">
+          <section class="primary-column" id="view-root"></section>
+
+          <aside class="side-rail">
+            <article class="rail-panel">
+              <div class="rail-header">
+                <h3>Agent 结论记录</h3>
+                <button id="quick-brief-button">生成周报</button>
+              </div>
+              <div id="insight-list"></div>
+            </article>
+
+            <article class="rail-panel">
+              <div class="rail-header">
+                <h3>消息中心</h3>
+                <span id="notification-count">0</span>
+              </div>
+              <div id="notification-list"></div>
+            </article>
+
+            <article class="rail-panel">
+              <div class="rail-header">
+                <h3>审计日志</h3>
+                <span id="audit-count">0</span>
+              </div>
+              <div id="audit-list"></div>
+            </article>
+
+            <article class="rail-panel">
+              <div class="rail-header">
+                <h3>Agent 编排</h3>
+                <span>6 个内置角色</span>
+              </div>
+              <div id="agent-catalog"></div>
+            </article>
+          </aside>
+        </div>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
