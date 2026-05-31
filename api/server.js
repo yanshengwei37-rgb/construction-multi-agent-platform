@@ -16,12 +16,14 @@ export function createPlatformServer(options = {}) {
     documentMs: options.documentMs ?? 300
   };
 
-  function queueRun({ projectId, runType, prompt, agentId = "pmo-agent" }) {
+  function queueRun({ projectId, runType, prompt, agentId = "pmo-agent", actorId, actorName }) {
     const run = repository.agents.createRun({
       projectId,
       runType,
       prompt,
-      agentId
+      agentId,
+      actorId,
+      actorName
     });
     setTimeout(() => {
       try {
@@ -184,7 +186,9 @@ export function createPlatformServer(options = {}) {
           projectId,
           runType: "schedule-scan",
           prompt: `分析 ${body.rows?.length || 0} 个新导入的 WBS 节点`,
-          agentId: "schedule-agent"
+          agentId: "schedule-agent",
+          actorId: user.id,
+          actorName: user.name
         });
         sendJson(response, 200, schedule);
         return;
@@ -215,7 +219,9 @@ export function createPlatformServer(options = {}) {
           projectId,
           runType: "safety-review",
           prompt: `复核新增隐患：${body.title}`,
-          agentId: "safety-agent"
+          agentId: "safety-agent",
+          actorId: user.id,
+          actorName: user.name
         });
         sendJson(response, 201, result);
         return;
@@ -236,6 +242,59 @@ export function createPlatformServer(options = {}) {
 
       if (request.method === "GET" && segments.length === 4 && segments[3] === "tech-cost") {
         sendJson(response, 200, repository.techCost.buildView(projectId, user));
+        return;
+      }
+
+      if (request.method === "GET" && segments.length === 4 && segments[3] === "quality") {
+        sendJson(response, 200, repository.quality.buildView(projectId, user));
+        return;
+      }
+
+      if (request.method === "POST" && segments.length === 5 && segments[3] === "quality" && segments[4] === "inspections") {
+        const body = await readJson(request);
+        const result = repository.quality.addInspection(projectId, body, user);
+        queueRun({
+          projectId,
+          runType: "quality-review",
+          prompt: `复核新增质量检查：${body.title}`,
+          agentId: "tech-agent",
+          actorId: user.id,
+          actorName: user.name
+        });
+        sendJson(response, 201, result);
+        return;
+      }
+
+      if (
+        request.method === "POST" &&
+        segments.length === 7 &&
+        segments[3] === "quality" &&
+        segments[4] === "issues" &&
+        segments[6] === "recheck"
+      ) {
+        const body = await readJson(request);
+        const updated = repository.quality.addIssueRecheck(projectId, segments[5], body, user);
+        sendJson(response, 200, updated);
+        return;
+      }
+
+      if (request.method === "GET" && segments.length === 4 && segments[3] === "cost") {
+        sendJson(response, 200, repository.cost.buildView(projectId, user));
+        return;
+      }
+
+      if (request.method === "POST" && segments.length === 5 && segments[3] === "cost" && segments[4] === "snapshots") {
+        const body = await readJson(request);
+        const result = repository.cost.addSnapshot(projectId, body, user);
+        queueRun({
+          projectId,
+          runType: "cost-review",
+          prompt: `分析 ${body.month} 成本快照`,
+          agentId: "cost-agent",
+          actorId: user.id,
+          actorName: user.name
+        });
+        sendJson(response, 201, result);
         return;
       }
 

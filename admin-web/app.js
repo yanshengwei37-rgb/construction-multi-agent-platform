@@ -1,6 +1,6 @@
 const state = {
   userId: localStorage.getItem("admin-demo-user") || "project-manager",
-  currentView: "portfolio",
+  currentView: "dashboard",
   projectId: "",
   portfolioFilters: { region: "", type: "" },
   docFilters: { q: "", type: "" },
@@ -50,6 +50,9 @@ function statusText(value) {
     normal: "正常",
     high: "高风险",
     medium: "中风险",
+    issue_found: "有问题",
+    passed: "已通过",
+    recheck_pending: "待复验",
     pending: "待整改",
     closed: "已闭环",
     approved: "已审批",
@@ -70,6 +73,9 @@ function auditActionText(value) {
     "document.uploaded": "资料上传",
     "document.indexed": "资料完成索引",
     "schedule.imported": "进度导入",
+    "quality.inspection.created": "质量检查",
+    "quality.issue.rechecked": "质量复验",
+    "cost.snapshot.created": "成本快照",
     "safety.inspection.created": "巡检录入",
     "safety.rectification.updated": "整改反馈"
   };
@@ -115,12 +121,13 @@ async function loadPortfolio() {
 
 async function loadProjectData() {
   if (!state.projectId) return;
-  const [dashboard, schedule, documents, safety, techCost, notifications, insights, runs, auditLogs] = await Promise.all([
+  const [dashboard, schedule, documents, safety, quality, cost, notifications, insights, runs, auditLogs] = await Promise.all([
     api(`/api/projects/${state.projectId}/dashboard`),
     api(`/api/projects/${state.projectId}/schedule`),
     api(`/api/projects/${state.projectId}/documents`),
     api(`/api/projects/${state.projectId}/safety`),
-    api(`/api/projects/${state.projectId}/tech-cost`),
+    api(`/api/projects/${state.projectId}/quality`),
+    api(`/api/projects/${state.projectId}/cost`),
     api(`/api/projects/${state.projectId}/notifications`),
     api(`/api/projects/${state.projectId}/agent-insights`),
     api(`/api/agent/runs?projectId=${state.projectId}`),
@@ -130,7 +137,8 @@ async function loadProjectData() {
   state.data.schedule = schedule;
   state.data.documents = documents;
   state.data.safety = safety;
-  state.data.techCost = techCost;
+  state.data.quality = quality;
+  state.data.cost = cost;
   state.data.notifications = notifications;
   state.data.insights = insights;
   state.data.runs = runs;
@@ -196,16 +204,18 @@ function renderHeadline() {
   pageTitle.textContent = {
     dashboard: "项目仪表盘",
     schedule: "进度管理",
+    quality: "质量管理",
+    cost: "成本管理",
     documents: "资料管理",
     safety: "安全管理",
-    "tech-cost": "技术成本",
     agents: "Agent 中心"
   }[state.currentView];
   target.innerHTML = `
     <article class="hero-card"><span>总进度</span><strong>${summary.progress}%</strong><p>${numberDelta(summary.scheduleVarianceDays)}</p></article>
-    <article class="hero-card"><span>资料完整度</span><strong>${summary.docCompleteness}%</strong><p>项目资料已可供问答引用</p></article>
+    <article class="hero-card"><span>质量评分</span><strong>${summary.qualityScore}</strong><p>未闭环 ${summary.openQualityIssues} 项</p></article>
+    <article class="hero-card"><span>成本偏差</span><strong>${summary.costDeviation}%</strong><p>合同与计量跟踪</p></article>
     <article class="hero-card"><span>安全评分</span><strong>${summary.safetyScore}</strong><p>待闭环隐患 ${summary.openRisks} 项</p></article>
-    <article class="hero-card"><span>待办中心</span><strong>${summary.pendingTodos}</strong><p>站内消息与待确认事项</p></article>
+    <article class="hero-card"><span>资料完整度</span><strong>${summary.docCompleteness}%</strong><p>项目资料已可供问答引用</p></article>
   `;
 }
 
@@ -295,7 +305,7 @@ function renderDashboardView() {
       <div class="metric-grid four">
         <article class="metric-card"><span>项目经理</span><strong>${data.summary.manager}</strong><p>阶段：${data.summary.stage}</p></article>
         <article class="metric-card"><span>关键线路</span><strong>${data.schedule.criticalCount}</strong><p>预警节点 ${data.schedule.warningCount} 个</p></article>
-        <article class="metric-card"><span>资料索引</span><strong>${data.documents.total}</strong><p>待解析 ${data.documents.pendingIndex} 份</p></article>
+        <article class="metric-card"><span>质量问题</span><strong>${data.quality.openIssues}</strong><p>待复验 ${data.quality.recheckPending} 项</p></article>
         <article class="metric-card"><span>安全整改</span><strong>${data.safety.openRectifications}</strong><p>巡检 ${data.safety.inspections} 次</p></article>
       </div>
     </section>
@@ -317,13 +327,13 @@ function renderDashboardView() {
 
       <article class="panel">
         <div class="panel-heading">
-          <h3 class="panel-title">最新资料</h3>
+          <h3 class="panel-title">质量整改优先项</h3>
         </div>
         <div class="table-list">
-          ${data.documents.latest.map((document) => `
+          ${data.quality.latestIssues.map((issue) => `
             <div class="table-row">
-              <strong>${document.name}</strong>
-              <p>${document.type} · ${statusText(document.parseStatus)}</p>
+              <strong>${issue.title}</strong>
+              <p>${statusText(issue.status)} · ${issue.location} · 截止 ${issue.deadline}</p>
             </div>
           `).join("")}
         </div>
@@ -345,13 +355,17 @@ function renderDashboardView() {
 
       <article class="panel">
         <div class="panel-heading">
-          <h3 class="panel-title">合同关注项</h3>
+          <h3 class="panel-title">成本与资料</h3>
         </div>
         <div class="table-list">
-          ${data.techCost.contracts.map((contract) => `
+          <div class="table-row">
+            <strong>${data.cost.latest?.month || "-"} 成本快照</strong>
+            <p>预算 ${data.cost.latest?.budget || 0} 万 · 实际 ${data.cost.latest?.actual || 0} 万 · 偏差 ${data.cost.varianceRate}%</p>
+          </div>
+          ${data.documents.latest.slice(0, 2).map((document) => `
             <div class="table-row">
-              <strong>${contract.name}</strong>
-              <p>${contract.summary}</p>
+              <strong>${document.name}</strong>
+              <p>${document.type} · ${statusText(document.parseStatus)}</p>
             </div>
           `).join("")}
         </div>
@@ -439,6 +453,8 @@ function renderDocumentsView() {
           <option value="schedule">关联进度</option>
           <option value="documents">综合资料</option>
           <option value="safety">关联安全</option>
+          <option value="quality">关联质量</option>
+          <option value="cost">关联成本</option>
           <option value="tech">关联技术</option>
         </select>
         <input id="document-files" type="file" multiple />
@@ -543,17 +559,116 @@ function renderSafetyView() {
   `;
 }
 
-function renderTechCostView() {
-  const data = state.data.techCost;
+function renderQualityView() {
+  const data = state.data.quality;
   return `
-    <section class="scheme-grid fade-in">
-      ${data.schemes.map((item) => `
-        <article class="scheme-card">
-          <strong>${item.name}</strong>
-          <p>${statusText(item.status)} · ${item.updatedAt}</p>
-          <p>${item.summary}</p>
-        </article>
-      `).join("")}
+    <section class="form-panel fade-in">
+      <div class="section-heading">
+        <div>
+          <p class="panel-note">Quality Inspection</p>
+          <h3 class="section-title">质量检查录入</h3>
+        </div>
+      </div>
+      <form id="quality-inspection-form" class="form-grid">
+        <input id="quality-title" value="砌筑样板实测实量" />
+        <input id="quality-location" value="地下室样板段" />
+        <input id="quality-trade" value="砌筑工程" />
+        <select id="quality-result">
+          <option value="issue_found">发现问题</option>
+          <option value="passed">验收通过</option>
+        </select>
+        <select id="quality-severity">
+          <option value="medium">一般问题</option>
+          <option value="high">重大问题</option>
+          <option value="normal">合格记录</option>
+        </select>
+        <input id="quality-owner" value="砌筑班组" />
+        <input id="quality-deadline" value="2026-06-03" />
+        <textarea class="full" id="quality-description">灰缝厚度局部偏差，需要返修后复验。</textarea>
+        <button class="primary-button full" type="submit">提交质量检查</button>
+      </form>
+    </section>
+
+    <section class="panel-grid two fade-in">
+      <article class="panel">
+        <div class="section-heading">
+          <h3 class="section-title">质量问题台账</h3>
+          <span>${data.summary.openIssues} 项未闭环</span>
+        </div>
+        <div class="task-list">
+          ${data.issues.map((issue) => `
+            <article class="risk-card">
+              <strong>${issue.title}</strong>
+              <p>${statusText(issue.severity)} · ${statusText(issue.status)} · ${issue.location}</p>
+              <p>责任 ${issue.owner} · 截止 ${issue.deadline}</p>
+              <div class="task-feedback">
+                <textarea data-quality-note="${issue.id}" placeholder="填写复验意见"></textarea>
+                <button class="secondary-button" data-quality-recheck="${issue.id}">复验闭环</button>
+              </div>
+            </article>
+          `).join("")}
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="section-heading">
+          <h3 class="section-title">验收批与检查记录</h3>
+          <span>合格率 ${data.summary.passRate}%</span>
+        </div>
+        <div class="table-list">
+          ${data.acceptanceLots.map((lot) => `
+            <div class="table-row">
+              <strong>${lot.name}</strong>
+              <p>${lot.trade} · ${statusText(lot.status)} · ${lot.passRate}% · ${lot.updatedAt}</p>
+            </div>
+          `).join("")}
+          ${data.inspections.slice(0, 3).map((inspection) => `
+            <div class="table-row">
+              <strong>${inspection.title}</strong>
+              <p>${inspection.location} · ${inspection.trade} · ${statusText(inspection.result)}</p>
+            </div>
+          `).join("")}
+        </div>
+      </article>
+    </section>
+  `;
+}
+
+function renderCostView() {
+  const data = state.data.cost;
+  return `
+    <section class="form-panel fade-in">
+      <div class="section-heading">
+        <div>
+          <p class="panel-note">Cost Snapshot</p>
+          <h3 class="section-title">成本快照录入</h3>
+        </div>
+      </div>
+      <form id="cost-snapshot-form" class="form-grid">
+        <input id="cost-month" value="6月" />
+        <input id="cost-budget" type="number" value="9900" />
+        <input id="cost-actual" type="number" value="10150" />
+        <textarea class="full" id="cost-note">钢材调差和模板周转增加。</textarea>
+        <button class="primary-button full" type="submit">保存成本快照并分析</button>
+      </form>
+    </section>
+
+    <section class="panel fade-in">
+      <div class="section-heading">
+        <div>
+          <p class="panel-note">Budget vs Actual</p>
+          <h3 class="section-title">预算 / 实际成本</h3>
+        </div>
+        <span>${data.summary.latestMonth} 偏差 ${data.summary.varianceRate}%</span>
+      </div>
+      <div class="table-list">
+        ${data.snapshots.map((item) => `
+          <div class="table-row">
+            <strong>${item.month}</strong>
+            <p>预算 ${item.budget} 万 · 实际 ${item.actual} 万${item.note ? ` · ${item.note}` : ""}</p>
+          </div>
+        `).join("")}
+      </div>
     </section>
 
     <section class="contract-grid fade-in">
@@ -568,16 +683,9 @@ function renderTechCostView() {
 
     <section class="panel fade-in">
       <div class="section-heading">
-        <h3 class="section-title">规范标准</h3>
+        <h3 class="section-title">成本 Agent 摘要入口</h3>
       </div>
-      <div class="table-list">
-        ${data.standards.map((standard) => `
-          <div class="table-row">
-            <strong>${standard}</strong>
-            <p>技术 Agent 可基于该规范做引用式回答。</p>
-          </div>
-        `).join("")}
-      </div>
+      <p>成本快照保存后会触发成本 Agent，围绕预算偏差、合同变更、材料调差和计量口径生成分析记录。</p>
     </section>
   `;
 }
@@ -595,6 +703,8 @@ function renderAgentsView() {
       <div class="quick-run-row">
         <button class="quick-run" data-run-type="weekly-brief">周报摘要</button>
         <button class="quick-run" data-run-type="schedule-scan">关键线路扫描</button>
+        <button class="quick-run" data-run-type="quality-review">质量复核</button>
+        <button class="quick-run" data-run-type="cost-review">成本分析</button>
         <button class="quick-run" data-run-type="safety-review">安全复核</button>
         <button class="quick-run" data-run-type="document-digest">资料归档摘要</button>
       </div>
@@ -648,9 +758,10 @@ function renderViewRoot() {
     portfolio: renderPortfolioView,
     dashboard: renderDashboardView,
     schedule: renderScheduleView,
+    quality: renderQualityView,
+    cost: renderCostView,
     documents: renderDocumentsView,
     safety: renderSafetyView,
-    "tech-cost": renderTechCostView,
     agents: renderAgentsView
   };
   viewRoot.innerHTML = views[state.currentView]();
@@ -884,15 +995,77 @@ function wireViewActions() {
     });
   }
 
+  const qualityForm = document.querySelector("#quality-inspection-form");
+  if (qualityForm) {
+    qualityForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await api(`/api/projects/${state.projectId}/quality/inspections`, {
+        method: "POST",
+        body: {
+          title: document.querySelector("#quality-title").value,
+          location: document.querySelector("#quality-location").value,
+          trade: document.querySelector("#quality-trade").value,
+          result: document.querySelector("#quality-result").value,
+          severity: document.querySelector("#quality-severity").value,
+          owner: document.querySelector("#quality-owner").value,
+          deadline: document.querySelector("#quality-deadline").value,
+          description: document.querySelector("#quality-description").value
+        }
+      });
+      await loadProjectData();
+      window.setTimeout(refreshNotificationsAndInsights, 550);
+      render();
+    });
+  }
+
+  document.querySelectorAll("[data-quality-recheck]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const issueId = button.dataset.qualityRecheck;
+      const note = document.querySelector(`[data-quality-note="${issueId}"]`)?.value || "现场复验合格，质量问题闭环。";
+      await api(`/api/projects/${state.projectId}/quality/issues/${issueId}/recheck`, {
+        method: "POST",
+        body: { status: "closed", note }
+      });
+      await loadProjectData();
+      render();
+    });
+  });
+
+  const costForm = document.querySelector("#cost-snapshot-form");
+  if (costForm) {
+    costForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await api(`/api/projects/${state.projectId}/cost/snapshots`, {
+        method: "POST",
+        body: {
+          month: document.querySelector("#cost-month").value,
+          budget: document.querySelector("#cost-budget").value,
+          actual: document.querySelector("#cost-actual").value,
+          note: document.querySelector("#cost-note").value
+        }
+      });
+      await loadProjectData();
+      window.setTimeout(refreshNotificationsAndInsights, 550);
+      render();
+    });
+  }
+
   document.querySelectorAll(".quick-run").forEach((button) => {
     button.addEventListener("click", async () => {
+      const agentByRunType = {
+        "schedule-scan": "schedule-agent",
+        "safety-review": "safety-agent",
+        "quality-review": "tech-agent",
+        "cost-review": "cost-agent",
+        "document-digest": "document-agent"
+      };
       await api("/api/agent/runs", {
         method: "POST",
         body: {
           projectId: state.projectId,
           runType: button.dataset.runType,
           prompt: `执行 ${button.dataset.runType} 分析`,
-          agentId: button.dataset.runType === "schedule-scan" ? "schedule-agent" : "pmo-agent"
+          agentId: agentByRunType[button.dataset.runType] || "pmo-agent"
         }
       });
       window.setTimeout(async () => {

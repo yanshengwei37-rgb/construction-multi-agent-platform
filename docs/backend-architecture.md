@@ -26,7 +26,9 @@ agent worker -> project context/repository data
 - `schedule`: WBS 导入、节点、里程碑、偏差分析输入。
 - `documents`: 资料列表、上传、版本、解析状态、引用来源。
 - `safety`: 巡检、隐患、整改、复查、风险矩阵。
-- `techCost`: 技术方案、规范、合同与成本快照。
+- `quality`: 质量检查、质量问题、复验记录、验收批台账。
+- `cost`: 成本快照、预算/实际偏差、合同关注项。
+- `techCost`: 技术方案、规范、合同与成本底层演示数据。
 - `notifications`: 站内消息、待办、提醒。
 - `agents`: AgentRun、AgentInsight、异步任务状态。
 - `model`: 当前模型通道与供应商配置。
@@ -46,6 +48,11 @@ agent worker -> project context/repository data
 - `safety_inspections`
 - `risk_items`
 - `rectification_tasks`
+- `quality_inspections`
+- `quality_issues`
+- `quality_rechecks`
+- `acceptance_lots`
+- `cost_snapshots`
 - `agent_runs`
 - `agent_insights`
 - `notifications`
@@ -53,7 +60,6 @@ agent worker -> project context/repository data
 第二批表再落：
 
 - `tech_schemes`
-- `cost_snapshots`
 - `contracts`
 - `audit_logs`
 - `document_chunks`

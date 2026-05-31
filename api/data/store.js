@@ -56,6 +56,8 @@ const projects = [
       progress: 68,
       scheduleVarianceDays: -2,
       safetyScore: 74,
+      qualityScore: 82,
+      openQualityIssues: 2,
       openRisks: 5,
       docCompleteness: 88,
       costDeviation: 1.1,
@@ -76,6 +78,8 @@ const projects = [
       progress: 79,
       scheduleVarianceDays: 1,
       safetyScore: 86,
+      qualityScore: 91,
+      openQualityIssues: 1,
       openRisks: 2,
       docCompleteness: 93,
       costDeviation: 0.6,
@@ -96,6 +100,8 @@ const projects = [
       progress: 42,
       scheduleVarianceDays: -4,
       safetyScore: 69,
+      qualityScore: 76,
+      openQualityIssues: 3,
       openRisks: 6,
       docCompleteness: 72,
       costDeviation: 2.3,
@@ -448,6 +454,105 @@ function buildState() {
         rectifications: []
       }
     },
+    quality: {
+      "proj-tianfu": {
+        inspections: [
+          {
+            id: "quality-inspection-tf-1",
+            title: "主体结构钢筋隐蔽验收",
+            location: "2#楼 6层",
+            trade: "钢筋工程",
+            result: "issue_found",
+            severity: "medium",
+            inspector: "质量员",
+            createdAt: "2026-05-30 15:20",
+            description: "墙柱钢筋保护层局部偏差，需调整垫块后复验。",
+            photos: ["rebar-cover-0530.jpg"]
+          },
+          {
+            id: "quality-inspection-tf-2",
+            title: "混凝土观感检查",
+            location: "1#楼 5层",
+            trade: "混凝土工程",
+            result: "passed",
+            severity: "normal",
+            inspector: "质量员",
+            createdAt: "2026-05-29 17:30",
+            description: "蜂窝麻面数量在允许范围内，已记录养护要求。",
+            photos: []
+          }
+        ],
+        issues: [
+          {
+            id: "quality-issue-tf-1",
+            title: "墙柱钢筋保护层偏差",
+            status: "pending",
+            severity: "medium",
+            location: "2#楼 6层",
+            owner: "钢筋班组",
+            deadline: "2026-06-01",
+            sourceInspectionId: "quality-inspection-tf-1",
+            updates: [
+              {
+                at: "2026-05-30 16:00",
+                actor: "质量员",
+                note: "已要求班组调整垫块并提交复验。"
+              }
+            ]
+          },
+          {
+            id: "quality-issue-tf-2",
+            title: "二次结构砌筑灰缝厚度偏差",
+            status: "recheck_pending",
+            severity: "medium",
+            location: "地下室样板段",
+            owner: "砌筑班组",
+            deadline: "2026-06-02",
+            sourceInspectionId: "quality-inspection-tf-1",
+            updates: []
+          }
+        ],
+        rechecks: [
+          {
+            id: "quality-recheck-tf-1",
+            issueId: "quality-issue-tf-2",
+            result: "recheck_pending",
+            owner: "质量员",
+            scheduledAt: "2026-06-01 09:00",
+            note: "等待样板段完成返修后复查。"
+          }
+        ],
+        acceptanceLots: [
+          { id: "lot-tf-1", name: "2#楼 5层梁板钢筋", trade: "钢筋工程", status: "passed", passRate: 96, updatedAt: "2026-05-30" },
+          { id: "lot-tf-2", name: "1#楼 5层混凝土浇筑", trade: "混凝土工程", status: "passed", passRate: 98, updatedAt: "2026-05-29" },
+          { id: "lot-tf-3", name: "地下室二次结构样板段", trade: "砌筑工程", status: "issue_found", passRate: 82, updatedAt: "2026-05-31" }
+        ]
+      },
+      "proj-meixi": {
+        inspections: [],
+        issues: [
+          {
+            id: "quality-issue-mx-1",
+            title: "机电支吊架间距复核",
+            status: "pending",
+            severity: "medium",
+            location: "样板层",
+            owner: "机电班组",
+            deadline: "2026-06-03",
+            sourceInspectionId: null,
+            updates: []
+          }
+        ],
+        rechecks: [],
+        acceptanceLots: []
+      },
+      "proj-linan": {
+        inspections: [],
+        issues: [],
+        rechecks: [],
+        acceptanceLots: []
+      }
+    },
     techCost: {
       "proj-tianfu": {
         schemes: [
@@ -715,10 +820,12 @@ export function buildPortfolioView(user, filters = {}) {
   });
   const projectsPayload = accessibleProjects.map((project) => {
     const safety = state.safety[project.id];
+    const quality = state.quality[project.id];
     const documents = state.documents[project.id];
     return {
       ...project,
       openRectifications: safety.rectifications.filter((item) => item.status !== "closed").length,
+      openQualityIssues: quality.issues.filter((item) => item.status !== "closed").length,
       docsPendingIndex: documents.filter((item) => item.parseStatus !== "indexed").length
     };
   });
@@ -764,7 +871,9 @@ export function buildDashboard(projectId, user) {
   const schedule = state.schedules[projectId];
   const documents = state.documents[projectId];
   const safety = state.safety[projectId];
+  const quality = state.quality[projectId];
   const techCost = state.techCost[projectId];
+  const latestCost = techCost.costSnapshots[techCost.costSnapshots.length - 1];
   return structuredClone({
     project,
     summary: {
@@ -774,7 +883,10 @@ export function buildDashboard(projectId, user) {
       scheduleVarianceDays: project.summary.scheduleVarianceDays,
       docCompleteness: project.summary.docCompleteness,
       safetyScore: project.summary.safetyScore,
+      qualityScore: project.summary.qualityScore,
+      openQualityIssues: quality.issues.filter((item) => item.status !== "closed").length,
       openRisks: project.summary.openRisks,
+      costDeviation: project.summary.costDeviation,
       pendingTodos: project.summary.pendingTodos
     },
     schedule: {
@@ -794,9 +906,17 @@ export function buildDashboard(projectId, user) {
       topRisks: safety.riskItems.slice(0, 3),
       matrix: safety.matrix
     },
-    techCost: {
-      contracts: techCost.contracts.slice(0, 3),
-      schemes: techCost.schemes.slice(0, 2)
+    quality: {
+      inspections: quality.inspections.length,
+      openIssues: quality.issues.filter((item) => item.status !== "closed").length,
+      recheckPending: quality.issues.filter((item) => item.status === "recheck_pending").length,
+      latestIssues: quality.issues.slice(0, 3),
+      acceptanceLots: quality.acceptanceLots.slice(0, 3)
+    },
+    cost: {
+      latest: latestCost,
+      varianceRate: latestCost ? Number((((latestCost.actual - latestCost.budget) / latestCost.budget) * 100).toFixed(1)) : 0,
+      contracts: techCost.contracts.slice(0, 3)
     },
     notifications: listNotifications(projectId).slice(0, 5),
     agentInsights: listAgentInsights(projectId).slice(0, 4)
@@ -853,10 +973,48 @@ export function buildSafetyView(projectId, user) {
   });
 }
 
+export function buildQualityView(projectId, user) {
+  ensureProjectAccess(user, projectId);
+  const quality = state.quality[projectId];
+  const openIssues = quality.issues.filter((item) => item.status !== "closed");
+  const passedLots = quality.acceptanceLots.filter((item) => item.status === "passed").length;
+  return structuredClone({
+    summary: {
+      inspections: quality.inspections.length,
+      openIssues: openIssues.length,
+      recheckPending: quality.issues.filter((item) => item.status === "recheck_pending").length,
+      passRate: quality.acceptanceLots.length ? Math.round((passedLots / quality.acceptanceLots.length) * 100) : 100
+    },
+    inspections: quality.inspections.slice().sort((left, right) => right.createdAt.localeCompare(left.createdAt)),
+    issues: quality.issues.slice().sort((left, right) => right.deadline.localeCompare(left.deadline)),
+    rechecks: quality.rechecks,
+    acceptanceLots: quality.acceptanceLots
+  });
+}
+
 export function buildTechCostView(projectId, user) {
   ensureProjectAccess(user, projectId);
   return structuredClone(state.techCost[projectId]);
 }
+
+export function buildCostView(projectId, user) {
+  ensureProjectAccess(user, projectId);
+  const techCost = state.techCost[projectId];
+  const latest = techCost.costSnapshots[techCost.costSnapshots.length - 1] || null;
+  const varianceRate = latest ? Number((((latest.actual - latest.budget) / latest.budget) * 100).toFixed(1)) : 0;
+  return structuredClone({
+    summary: {
+      latestMonth: latest?.month || "-",
+      budget: latest?.budget || 0,
+      actual: latest?.actual || 0,
+      varianceRate,
+      warningContracts: techCost.contracts.filter((item) => item.status === "warning").length
+    },
+    snapshots: techCost.costSnapshots,
+    contracts: techCost.contracts
+  });
+}
+
 
 export function appendNotification(projectId, notification) {
   const item = { id: nextId("notice"), read: false, ...notification };
@@ -1135,4 +1293,151 @@ export function addRectificationFeedback(projectId, taskId, payload, actor) {
     metadata: { status: task.status, note: payload.note }
   });
   return structuredClone(task);
+}
+
+export function addQualityInspection(projectId, payload, actor) {
+  const quality = state.quality[projectId];
+  const createdAt = new Date().toISOString();
+  const inspection = {
+    id: nextId("quality-inspection"),
+    title: payload.title,
+    location: payload.location,
+    trade: payload.trade,
+    result: payload.result || "issue_found",
+    severity: payload.severity || "medium",
+    inspector: actor.name,
+    createdAt,
+    description: payload.description,
+    photos: payload.photos || []
+  };
+  quality.inspections.unshift(inspection);
+
+  let issue = null;
+  if (inspection.result !== "passed") {
+    issue = {
+      id: nextId("quality-issue"),
+      title: payload.issueTitle || inspection.title,
+      status: "pending",
+      severity: inspection.severity,
+      location: inspection.location,
+      owner: payload.owner || "施工班组",
+      deadline: payload.deadline,
+      sourceInspectionId: inspection.id,
+      updates: [
+        {
+          at: createdAt,
+          actor: actor.name,
+          note: payload.description
+        }
+      ]
+    };
+    quality.issues.unshift(issue);
+    appendNotification(projectId, {
+      type: "todo",
+      title: `新增质量整改：${issue.title}`,
+      module: "quality",
+      createdAt,
+      recordId: issue.id
+    });
+    const project = getProject(projectId);
+    project.summary.openQualityIssues = quality.issues.filter((item) => item.status !== "closed").length;
+    project.summary.qualityScore = Math.max(60, project.summary.qualityScore - (inspection.severity === "high" ? 4 : 2));
+  } else {
+    appendNotification(projectId, {
+      type: "digest",
+      title: `质量验收通过：${inspection.title}`,
+      module: "quality",
+      createdAt,
+      recordId: inspection.id
+    });
+  }
+
+  appendAuditLog(projectId, {
+    actor,
+    module: "quality",
+    action: "quality.inspection.created",
+    recordId: inspection.id,
+    summary: `${actor.name} 新增质量检查：${inspection.title}，结果为 ${inspection.result}。`,
+    metadata: { issueId: issue?.id || null, severity: inspection.severity, trade: inspection.trade }
+  });
+  return structuredClone({ inspection, issue });
+}
+
+export function addQualityIssueRecheck(projectId, issueId, payload, actor) {
+  const quality = state.quality[projectId];
+  const issue = quality.issues.find((item) => item.id === issueId);
+  if (!issue) {
+    const error = new Error("not_found");
+    error.statusCode = 404;
+    throw error;
+  }
+  const checkedAt = new Date().toISOString();
+  issue.status = payload.status || "closed";
+  issue.updates.unshift({
+    at: checkedAt,
+    actor: actor.name,
+    note: payload.note
+  });
+  const recheck = {
+    id: nextId("quality-recheck"),
+    issueId,
+    result: issue.status,
+    owner: actor.name,
+    scheduledAt: payload.checkedAt || checkedAt,
+    note: payload.note
+  };
+  quality.rechecks.unshift(recheck);
+  const project = getProject(projectId);
+  project.summary.openQualityIssues = quality.issues.filter((item) => item.status !== "closed").length;
+  if (issue.status === "closed") {
+    project.summary.qualityScore = Math.min(100, project.summary.qualityScore + 1);
+  }
+  appendNotification(projectId, {
+    type: issue.status === "closed" ? "digest" : "todo",
+    title: issue.status === "closed" ? `质量问题已复验闭环：${issue.title}` : `质量问题待继续复验：${issue.title}`,
+    module: "quality",
+    createdAt: checkedAt,
+    recordId: issue.id
+  });
+  appendAuditLog(projectId, {
+    actor,
+    module: "quality",
+    action: "quality.issue.rechecked",
+    recordId: issue.id,
+    summary: `${actor.name} 复验质量问题：${issue.title}，状态为 ${issue.status}。`,
+    metadata: { status: issue.status, note: payload.note }
+  });
+  return structuredClone({ issue, recheck });
+}
+
+export function addCostSnapshot(projectId, payload, actor) {
+  const techCost = state.techCost[projectId];
+  const snapshot = {
+    month: payload.month,
+    budget: Number(payload.budget),
+    actual: Number(payload.actual),
+    note: payload.note || "",
+    createdAt: new Date().toISOString(),
+    actor: actor.name
+  };
+  techCost.costSnapshots.push(snapshot);
+  const varianceRate = snapshot.budget ? Number((((snapshot.actual - snapshot.budget) / snapshot.budget) * 100).toFixed(1)) : 0;
+  const project = getProject(projectId);
+  project.summary.costDeviation = varianceRate;
+  appendNotification(projectId, {
+    type: Math.abs(varianceRate) > 2 ? "warning" : "digest",
+    title: `成本快照已更新：${snapshot.month} 偏差 ${varianceRate}%`,
+    module: "cost",
+    createdAt: snapshot.createdAt,
+    recordId: `cost-${snapshot.month}`
+  });
+  appendAuditLog(projectId, {
+    actor,
+    module: "cost",
+    action: "cost.snapshot.created",
+    recordId: `cost-${snapshot.month}`,
+    summary: `${actor.name} 录入 ${snapshot.month} 成本快照，预算 ${snapshot.budget} 万，实际 ${snapshot.actual} 万。`,
+    metadata: { varianceRate, note: snapshot.note }
+  });
+  return structuredClone({ snapshot, varianceRate });
 }

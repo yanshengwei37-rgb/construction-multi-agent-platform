@@ -1,7 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  addCostSnapshot,
   addDocumentUpload,
+  addQualityInspection,
+  addQualityIssueRecheck,
   addSafetyInspection,
   appendNotification,
   completeAgentRun,
@@ -27,6 +30,7 @@ function currentProjectContext(projectId) {
     schedule: state.schedules[projectId],
     documents: state.documents[projectId],
     safety: state.safety[projectId],
+    quality: state.quality[projectId],
     techCost: state.techCost[projectId]
   };
 }
@@ -101,6 +105,53 @@ test("safety inspection creates rectification and notification", () => {
   const notifications = listNotifications("proj-tianfu");
   assert.ok(notifications.some((item) => item.title.includes("新增安全整改")));
   assert.ok(listAuditLogs("proj-tianfu").some((item) => item.action === "safety.inspection.created"));
+});
+
+test("quality inspection creates issue and recheck trail", () => {
+  resetStore();
+  const actor = getUser("project-manager");
+  const result = addQualityInspection(
+    "proj-tianfu",
+    {
+      title: "砌筑样板实测实量",
+      location: "地下室样板段",
+      trade: "砌筑工程",
+      result: "issue_found",
+      severity: "medium",
+      deadline: "2026-06-03",
+      owner: "砌筑班组",
+      description: "灰缝厚度偏差，需要返修后复验。"
+    },
+    actor
+  );
+
+  assert.equal(result.issue.status, "pending");
+  const recheck = addQualityIssueRecheck("proj-tianfu", result.issue.id, {
+    status: "closed",
+    note: "返修完成，复验合格。"
+  }, actor);
+
+  assert.equal(recheck.issue.status, "closed");
+  assert.ok(listAuditLogs("proj-tianfu").some((item) => item.action === "quality.issue.rechecked"));
+});
+
+test("cost snapshot records variance and audit log", () => {
+  resetStore();
+  const actor = getUser("project-manager");
+  const result = addCostSnapshot(
+    "proj-tianfu",
+    {
+      month: "6月",
+      budget: 9900,
+      actual: 10150,
+      note: "钢材调差和模板周转增加。"
+    },
+    actor
+  );
+
+  assert.equal(result.varianceRate, 2.5);
+  assert.ok(listNotifications("proj-tianfu").some((item) => item.module === "cost"));
+  assert.ok(listAuditLogs("proj-tianfu").some((item) => item.action === "cost.snapshot.created"));
 });
 
 test("async agent run result can be completed and stored", () => {

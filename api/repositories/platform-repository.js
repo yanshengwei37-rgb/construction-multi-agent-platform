@@ -1,5 +1,8 @@
 import {
   addDocumentUpload,
+  addCostSnapshot,
+  addQualityInspection,
+  addQualityIssueRecheck,
   addRectificationFeedback,
   addSafetyInspection,
   appendAgentInsight,
@@ -8,6 +11,8 @@ import {
   buildDashboard,
   buildDocumentsView,
   buildPortfolioView,
+  buildCostView,
+  buildQualityView,
   buildSafetyView,
   buildScheduleView,
   buildTechCostView,
@@ -55,6 +60,7 @@ export function createInMemoryPlatformRepository() {
           schedule: state.schedules[projectId],
           documents: state.documents[projectId],
           safety: state.safety[projectId],
+          quality: state.quality[projectId],
           techCost: state.techCost[projectId]
         };
       }
@@ -72,6 +78,15 @@ export function createInMemoryPlatformRepository() {
       buildView: buildSafetyView,
       addInspection: addSafetyInspection,
       addRectificationFeedback
+    },
+    quality: {
+      buildView: buildQualityView,
+      addInspection: addQualityInspection,
+      addIssueRecheck: addQualityIssueRecheck
+    },
+    cost: {
+      buildView: buildCostView,
+      addSnapshot: addCostSnapshot
     },
     techCost: {
       buildView: buildTechCostView

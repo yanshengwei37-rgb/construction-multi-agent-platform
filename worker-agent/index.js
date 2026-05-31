@@ -25,8 +25,8 @@ export const agentCatalog = [
   },
   {
     id: "tech-agent",
-    name: "技术 Agent",
-    scope: "技术方案摘要、规范检索",
+    name: "质量/技术 Agent",
+    scope: "质量验收、技术方案摘要、规范检索",
     mode: "sync"
   },
   {
@@ -61,6 +61,21 @@ function topSafetyRisk(safety) {
     .sort((left, right) => (left.severity === "high" ? -1 : 1))[0];
 }
 
+function topQualityIssue(quality) {
+  return quality?.issues
+    ?.filter((item) => item.status !== "closed")
+    .sort((left, right) => (left.severity === "high" ? -1 : 1))[0];
+}
+
+function latestCostVariance(techCost) {
+  const latest = techCost?.costSnapshots?.[techCost.costSnapshots.length - 1];
+  if (!latest) return null;
+  return {
+    ...latest,
+    varianceRate: latest.budget ? Number((((latest.actual - latest.budget) / latest.budget) * 100).toFixed(1)) : 0
+  };
+}
+
 function pendingDocument(documents) {
   return documents.find((document) => document.parseStatus !== "indexed") || documents[0];
 }
@@ -85,6 +100,24 @@ export function classifyDocumentUpload(payload) {
       citations: ["资料 Agent 已将该资料归入安全模块。"]
     };
   }
+  if (lowerName.includes("质量") || lowerName.includes("验收") || lowerName.includes("实测")) {
+    return {
+      type: payload.type || "质量验收",
+      module: "quality",
+      classificationConfidence: 0.91,
+      excerpt: payload.notes || "识别为质量验收或实测实量资料。",
+      citations: ["质量/技术 Agent 已将该资料归入质量模块。"]
+    };
+  }
+  if (lowerName.includes("成本") || lowerName.includes("计量") || lowerName.includes("合同")) {
+    return {
+      type: payload.type || "成本资料",
+      module: "cost",
+      classificationConfidence: 0.89,
+      excerpt: payload.notes || "识别为成本、计量或合同资料。",
+      citations: ["成本 Agent 已将该资料归入成本模块。"]
+    };
+  }
   if (lowerName.includes("方案") || lowerName.includes("规范")) {
     return {
       type: payload.type || "施工方案",
@@ -103,9 +136,11 @@ export function classifyDocumentUpload(payload) {
   };
 }
 
-export function answerProjectQuestion({ project, question, schedule, documents, safety, provider }) {
+export function answerProjectQuestion({ project, question, schedule, documents, safety, quality, techCost, provider }) {
   const warningNode = topScheduleWarning(schedule);
   const rectification = topSafetyRisk(safety);
+  const qualityIssue = topQualityIssue(quality);
+  const costVariance = latestCostVariance(techCost);
   const document = pendingDocument(documents);
   const text = question.trim();
   const citations = [];
@@ -121,8 +156,16 @@ export function answerProjectQuestion({ project, question, schedule, documents, 
       lines.push(`2. 安全：${rectification.title} 仍处于 ${rectification.status} 状态，整改截止 ${rectification.deadline}。`);
       citations.push({ id: rectification.id, label: rectification.title, module: "safety" });
     }
+    if (qualityIssue) {
+      lines.push(`3. 质量：${qualityIssue.title} 当前为 ${qualityIssue.status}，复验或整改截止 ${qualityIssue.deadline}。`);
+      citations.push({ id: qualityIssue.id, label: qualityIssue.title, module: "quality" });
+    }
+    if (costVariance) {
+      lines.push(`4. 成本：${costVariance.month} 实际 ${costVariance.actual} 万，较预算偏差 ${costVariance.varianceRate}%。`);
+      citations.push({ id: `cost-${costVariance.month}`, label: `${costVariance.month}成本快照`, module: "cost" });
+    }
     if (document) {
-      lines.push(`3. 资料：${document.name} 当前解析状态为 ${document.parseStatus}，建议补齐归档后再用于问答和复盘。`);
+      lines.push(`5. 资料：${document.name} 当前解析状态为 ${document.parseStatus}，建议补齐归档后再用于问答和复盘。`);
       citations.push({ id: document.id, label: document.name, module: "documents" });
     }
   } else if (text.includes("资料") || text.includes("文档")) {
@@ -137,8 +180,23 @@ export function answerProjectQuestion({ project, question, schedule, documents, 
       lines.push(`${index + 1}. ${item.title}：${item.status}，截止 ${item.deadline}。`);
       citations.push({ id: item.id, label: item.title, module: "safety" });
     });
+  } else if (text.includes("质量") || text.includes("验收") || text.includes("复验")) {
+    lines.push(`当前未闭环质量问题 ${quality.issues.filter((item) => item.status !== "closed").length} 项。`);
+    quality.issues.slice(0, 3).forEach((item, index) => {
+      lines.push(`${index + 1}. ${item.title}：${item.status}，责任 ${item.owner}，截止 ${item.deadline}。`);
+      citations.push({ id: item.id, label: item.title, module: "quality" });
+    });
+  } else if (text.includes("成本") || text.includes("预算") || text.includes("合同")) {
+    if (costVariance) {
+      lines.push(`${costVariance.month} 成本快照：预算 ${costVariance.budget} 万，实际 ${costVariance.actual} 万，偏差 ${costVariance.varianceRate}%。`);
+      citations.push({ id: `cost-${costVariance.month}`, label: `${costVariance.month}成本快照`, module: "cost" });
+    }
+    techCost.contracts.slice(0, 3).forEach((item, index) => {
+      lines.push(`${index + 1}. ${item.name}：${item.summary}`);
+      citations.push({ id: item.id, label: item.name, module: "cost" });
+    });
   } else {
-    lines.push(`项目 ${project.name} 当前总进度 ${project.summary.progress}%，安全评分 ${project.summary.safetyScore}，资料完整度 ${project.summary.docCompleteness}%。`);
+    lines.push(`项目 ${project.name} 当前总进度 ${project.summary.progress}%，质量评分 ${project.summary.qualityScore}，安全评分 ${project.summary.safetyScore}，资料完整度 ${project.summary.docCompleteness}%，成本偏差 ${project.summary.costDeviation}%。`);
     if (warningNode) {
       lines.push(`关键线路最需要关注的是 ${warningNode.name}。`);
       citations.push({ id: warningNode.id, label: warningNode.name, module: "schedule" });
@@ -147,19 +205,25 @@ export function answerProjectQuestion({ project, question, schedule, documents, 
       lines.push(`安全侧优先事项是 ${rectification.title}。`);
       citations.push({ id: rectification.id, label: rectification.title, module: "safety" });
     }
+    if (qualityIssue) {
+      lines.push(`质量侧优先事项是 ${qualityIssue.title}。`);
+      citations.push({ id: qualityIssue.id, label: qualityIssue.title, module: "quality" });
+    }
   }
 
   lines.push(`模型通道：${provider.label}。`);
   return {
     answer: lines.join("\n"),
     citations: uniqueCitations(citations),
-    agents: ["pmo-agent", "schedule-agent", "safety-agent", "document-agent"]
+    agents: ["pmo-agent", "schedule-agent", "safety-agent", "document-agent", "tech-agent", "cost-agent"]
   };
 }
 
-export function generateAsyncAnalysis({ runType, project, schedule, documents, safety, provider, prompt }) {
+export function generateAsyncAnalysis({ runType, project, schedule, documents, safety, quality, techCost, provider, prompt }) {
   const warningNode = topScheduleWarning(schedule);
   const rectification = topSafetyRisk(safety);
+  const qualityIssue = topQualityIssue(quality);
+  const costVariance = latestCostVariance(techCost);
   const document = pendingDocument(documents);
   if (runType === "schedule-scan") {
     return {
@@ -191,14 +255,36 @@ export function generateAsyncAnalysis({ runType, project, schedule, documents, s
       provider: provider.label
     };
   }
+  if (runType === "quality-review") {
+    return {
+      agentId: "tech-agent",
+      severity: qualityIssue?.severity === "high" ? "warning" : "normal",
+      title: "质量复核完成",
+      summary: qualityIssue ? `${qualityIssue.title} 需按 ${qualityIssue.deadline} 完成整改复验，建议同步留存照片与验收记录。` : "当前质量台账暂无未闭环问题。",
+      citations: qualityIssue ? [{ id: qualityIssue.id, label: qualityIssue.title, module: "quality" }] : [],
+      provider: provider.label
+    };
+  }
+  if (runType === "cost-review") {
+    return {
+      agentId: "cost-agent",
+      severity: Math.abs(costVariance?.varianceRate || 0) > 2 ? "warning" : "normal",
+      title: "成本偏差分析完成",
+      summary: costVariance ? `${costVariance.month} 成本偏差 ${costVariance.varianceRate}%，建议核对合同变更、材料调差和已完工程量口径。` : "当前暂无成本快照可分析。",
+      citations: costVariance ? [{ id: `cost-${costVariance.month}`, label: `${costVariance.month}成本快照`, module: "cost" }] : [],
+      provider: provider.label
+    };
+  }
   return {
     agentId: "pmo-agent",
     severity: "warning",
-    title: "周报摘要完成",
-    summary: `${project.name} 当前需要同步关注进度偏差、安全整改与资料归档，来源于问题：${prompt}`,
+    title: "项目周报摘要完成",
+    summary: `${project.name} 当前需要同步关注进度、质量、安全、成本与资料闭环，来源于问题：${prompt}`,
     citations: uniqueCitations([
       warningNode && { id: warningNode.id, label: warningNode.name, module: "schedule" },
       rectification && { id: rectification.id, label: rectification.title, module: "safety" },
+      qualityIssue && { id: qualityIssue.id, label: qualityIssue.title, module: "quality" },
+      costVariance && { id: `cost-${costVariance.month}`, label: `${costVariance.month}成本快照`, module: "cost" },
       document && { id: document.id, label: document.name, module: "documents" }
     ].filter(Boolean)),
     provider: provider.label
