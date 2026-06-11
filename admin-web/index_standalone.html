@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>桌面管理端 - 建筑工程项目多智能体管理平台</title>
     <link rel="stylesheet" href="./styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
   </head>
   <body>
     <div class="admin-shell">
@@ -18,28 +17,24 @@
           </div>
         </div>
 
-        <nav class="nav-list">
-          <p class="nav-group">总览</p>
-          <button class="nav-item active" data-view="dashboard">
-            <span class="nav-main"><span class="nav-icon">📊</span><span>项目作战台</span></span>
-          </button>
-          <div class="project-switcher" id="project-switcher">
-            <button class="project-switcher-btn" id="project-switcher-btn">
-              <span class="project-switcher-icon">📋</span>
-              <span class="project-switcher-name" id="project-switcher-name">天府新区综合体项目</span>
-              <span class="project-switcher-arrow">▾</span>
-            </button>
-            <div class="project-switcher-dropdown" id="project-switcher-dropdown" hidden>
-              <div class="project-switcher-options" id="project-switcher-options"></div>
-            </div>
-          </div>
+        <section class="context-card" id="project-context-card"></section>
 
-          <p class="nav-group">专业管理</p>
-          <button class="nav-item" data-view="agents">
+        <nav class="nav-list">
+          <p class="nav-group">对话</p>
+          <button class="nav-item active" data-view="agents">
             <span class="nav-main"><span class="nav-icon">💬</span><span>智能问答</span></span>
           </button>
+          <p class="nav-group">专业智能体</p>
           <button class="nav-item" data-view="schedule">
             <span class="nav-main"><span class="nav-icon">📅</span><span>进度管理</span></span>
+            <span class="online-dot"></span>
+          </button>
+          <button class="nav-item" data-view="quality">
+            <span class="nav-main"><span class="nav-icon">🔍</span><span>质量管理</span></span>
+            <span class="online-dot"></span>
+          </button>
+          <button class="nav-item" data-view="cost">
+            <span class="nav-main"><span class="nav-icon">💰</span><span>成本管理</span></span>
             <span class="online-dot"></span>
           </button>
           <button class="nav-item" data-view="safety">
@@ -47,52 +42,33 @@
             <span class="nav-count">3</span>
             <span class="online-dot"></span>
           </button>
-          <button class="nav-item" data-view="quality">
-            <span class="nav-main"><span class="nav-icon">🔍</span><span>质量管理</span></span>
-            <span class="online-dot"></span>
-          </button>
           <button class="nav-item" data-view="documents">
             <span class="nav-main"><span class="nav-icon">📄</span><span>资料管理</span></span>
             <span class="online-dot"></span>
           </button>
-          <button class="nav-item" data-view="cost">
-            <span class="nav-main"><span class="nav-icon">💰</span><span>成本管理</span></span>
-            <span class="online-dot"></span>
+          <p class="nav-group">功能</p>
+          <button class="nav-item" data-view="dashboard">
+            <span class="nav-main"><span class="nav-icon">📊</span><span>仪表盘</span></span>
           </button>
-          <p class="nav-group">运营管理</p>
-          <button class="nav-item" data-view="agent-orchestration">
-            <span class="nav-main"><span class="nav-icon">🧩</span><span>Agent 编排</span></span>
-          </button>
-          <button class="nav-item" data-view="notification-center">
-            <span class="nav-main"><span class="nav-icon">🔔</span><span>消息中心</span></span>
-            <span class="nav-count" id="sidebar-notification-count">0</span>
-          </button>
-          <button class="nav-item" data-view="audit-log">
-            <span class="nav-main"><span class="nav-icon">📋</span><span>审计日志</span></span>
-          </button>
-          <p class="nav-group">规划</p>
           <button class="nav-item" data-view="roadmap">
             <span class="nav-main"><span class="nav-icon">🧭</span><span>建设规划</span></span>
           </button>
         </nav>
 
         <div class="sidebar-footer">
-          <p>现场端入口</p>
-          <a href="/field-h5/">打开 H5 巡检</a>
+          <p>现场端 / 公司层预留</p>
+          <a href="/field-h5/">打开 H5 巡检入口</a>
         </div>
       </aside>
 
       <main class="workspace">
         <header class="topbar">
-          <div class="topbar-title-area">
+          <div>
+            <p class="scope-label" id="scope-label">项目层视图</p>
             <div class="title-line">
-              <div>
-                <span class="scope-label" id="scope-label">项目层视图</span>
-                <h2 id="page-title">智能问答</h2>
-              </div>
+              <h2 id="page-title">智能问答</h2>
               <span class="version-pill">v1.0 Alpha</span>
             </div>
-
           </div>
 
           <div class="topbar-controls">
@@ -105,7 +81,38 @@
         <div class="workspace-grid">
           <section class="primary-column" id="view-root"></section>
 
+          <aside class="side-rail">
+            <article class="rail-panel">
+              <div class="rail-header">
+                <h3>Agent 结论记录</h3>
+              </div>
+              <div id="insight-list"></div>
+            </article>
 
+            <article class="rail-panel">
+              <div class="rail-header">
+                <h3>消息中心</h3>
+                <span id="notification-count">0</span>
+              </div>
+              <div id="notification-list"></div>
+            </article>
+
+            <article class="rail-panel">
+              <div class="rail-header">
+                <h3>审计日志</h3>
+                <span id="audit-count">0</span>
+              </div>
+              <div id="audit-list"></div>
+            </article>
+
+            <article class="rail-panel">
+              <div class="rail-header">
+                <h3>Agent 编排</h3>
+                <span>6 个内置角色</span>
+              </div>
+              <div id="agent-catalog"></div>
+            </article>
+          </aside>
         </div>
       </main>
     </div>
@@ -139,6 +146,6 @@
       </section>
     </aside>
 
-    <script src="./app.js?v=master-schedule-wizard-v1"></script>
+    <script src="./app.js?v=evidence-tabs"></script>
   </body>
 </html>

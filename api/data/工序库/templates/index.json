@@ -1,0 +1,63 @@
+{
+  "version": "2.2",
+  "released": "2026-06-05",
+  "lastUpdated": "2026-06-09",
+  "templates": [
+    {
+      "id": "TP-BASE-001",
+      "name": "地下室工程模板",
+      "category": "地下室工程",
+      "mode_required": true,
+      "applicableTypes": ["住宅小区", "商业综合体", "公共建筑"],
+      "description": "含4种施工模式(A/B/C/D)"
+    },
+    {
+      "id": "TP-STR-001",
+      "name": "主体结构模板",
+      "category": "主体结构",
+      "mode_required": true,
+      "applicableTypes": ["住宅小区", "商业综合体"],
+      "description": "含3种体系(木模/铝模/装配式铝模)，每种含楼层差异工期"
+    },
+    {
+      "id": "TP-SEC-01",
+      "name": "二次结构及砌体工程",
+      "category": "二次结构",
+      "mode_required": true,
+      "applicableTypes": ["住宅小区", "商业综合体", "公共建筑"],
+      "description": "含2种体系(木模/铝模)，木模7道工序、铝模4道工序"
+    },
+    {
+      "id": "TP-MEP-01",
+      "name": "机电安装工程",
+      "category": "机电安装",
+      "mode_required": false,
+      "applicableTypes": ["住宅小区", "商业综合体", "公共建筑"],
+      "description": "按地下室区域、主体楼栋划分机电系统工序；室外管网归入室外配套工程"
+    },
+    {
+      "id": "TP-FIN-01",
+      "name": "装饰装修工程",
+      "category": "装饰装修",
+      "mode_required": false,
+      "applicableTypes": ["住宅小区", "商业综合体"],
+      "description": "6道工序：抹灰→地坪→涂料→外墙保温→门窗→安装"
+    },
+    {
+      "id": "TP-ROOF-01",
+      "name": "屋面工程",
+      "category": "屋面工程",
+      "mode_required": true,
+      "applicableTypes": ["住宅小区", "商业综合体"],
+      "description": "含正置法（9道工序）和倒置法（8道工序）两种做法"
+    },
+    {
+      "id": "TP-EXT-01",
+      "name": "室外配套工程",
+      "category": "室外工程",
+      "mode_required": false,
+      "applicableTypes": ["住宅小区", "商业综合体"],
+      "description": "4道工序：室外管网→道路铺装→园林绿化→室外配套验收"
+    }
+  ]
+}

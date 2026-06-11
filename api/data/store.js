@@ -48,7 +48,7 @@ const projects = [
     code: "TF-2026-01",
     name: "天府新区综合体项目",
     region: "西南",
-    type: "商业综合体",
+    type: "住宅",
     stage: "主体结构",
     status: "warning",
     manager: "张磊",
@@ -62,6 +62,20 @@ const projects = [
       docCompleteness: 88,
       costDeviation: 1.1,
       pendingTodos: 9
+    },
+    buildings: [
+      { name: "1#楼", floors: 22, area: 8400, structureType: "剪力墙结构" },
+      { name: "2#楼", floors: 22, area: 8400, structureType: "剪力墙结构" },
+      { name: "3#楼", floors: 18, area: 7200, structureType: "剪力墙结构" },
+      { name: "4#楼", floors: 15, area: 5800, structureType: "框架-剪力墙结构" },
+      { name: "商业裙楼", floors: 3, area: 4200, structureType: "框架结构" }
+    ],
+    basement: {
+      floors: 2,
+      levels: [
+        { name: "B1", zones: [{ name: "1区", area: 4500, coverage: "全部覆盖", coverageBuildings: ["1#楼", "2#楼", "商业裙楼"] }, { name: "2区", area: 3800, coverage: "全部覆盖", coverageBuildings: ["3#楼", "4#楼"] }] },
+        { name: "B2", zones: [{ name: "1区", area: 4500, coverage: "局部", coverageBuildings: ["1#楼", "2#楼"] }, { name: "2区", area: 3200, coverage: "全部覆盖", coverageBuildings: ["3#楼", "4#楼"] }] }
+      ]
     }
   },
   {
@@ -698,6 +712,146 @@ function buildState() {
       ],
       "proj-meixi": [],
       "proj-linan": []
+    },
+    scheduledTasks: {
+      "proj-tianfu": [],
+      "proj-meixi": [],
+      "proj-linan": []
+    },
+    agentConfig: {
+      modelBindings: {
+        "pmo-agent": { providerId: "deepseek", chatModel: "deepseek-chat", temperature: 0.3, maxTokens: 4000 },
+        "schedule-agent": { providerId: "deepseek", chatModel: "deepseek-chat", temperature: 0.2, maxTokens: 3000 },
+        "safety-agent": { providerId: "deepseek", chatModel: "deepseek-chat", temperature: 0.2, maxTokens: 3000 },
+        "document-agent": { providerId: "deepseek", chatModel: "deepseek-chat", temperature: 0.1, maxTokens: 3000 },
+        "tech-agent": { providerId: "deepseek", chatModel: "deepseek-chat", temperature: 0.2, maxTokens: 3000 },
+        "cost-agent": { providerId: "deepseek", chatModel: "deepseek-chat", temperature: 0.1, maxTokens: 3000 }
+      },
+      organization: {
+        nodes: [
+          { id: "project-agent", label: "Project Agent", type: "hub" },
+          { id: "schedule-line", label: "进度线", type: "professional" },
+          { id: "quality-tech-line", label: "质量技术线", type: "professional" },
+          { id: "safety-line", label: "安全线", type: "professional" },
+          { id: "cost-line", label: "成本线", type: "professional" },
+          { id: "documents-line", label: "资料线", type: "professional" }
+        ]
+      },
+      workflows: [
+        { id: "wf-weekly-brief", name: "项目周报", enabled: true, runType: "weekly-brief", ownerAgentId: "pmo-agent" },
+        { id: "wf-schedule-scan", name: "进度扫描", enabled: true, runType: "schedule-scan", ownerAgentId: "schedule-agent" },
+        { id: "wf-safety-review", name: "安全复核", enabled: true, runType: "safety-review", ownerAgentId: "safety-agent" },
+        { id: "wf-quality-review", name: "质量复核", enabled: true, runType: "quality-review", ownerAgentId: "tech-agent" },
+        { id: "wf-cost-review", name: "成本分析", enabled: true, runType: "cost-review", ownerAgentId: "cost-agent" }
+      ]
+    },
+    processLibrary: {
+      systems: [
+        {
+          code: "CM", name: "通用/综合", sortOrder: 0,
+          packages: [
+            { code: "01", name: "项目筹备", sortOrder: 10,
+              processes: [
+                { code: "01", name: "施工准备", defaultDuration: 5, isKeyTask: true, predecessorRef: null, sortOrder: 10 }
+              ]},
+            { code: "02", name: "调试验收", sortOrder: 20,
+              processes: [
+                { code: "01", name: "系统调试", defaultDuration: 7, isKeyTask: true, predecessorRef: null, sortOrder: 10 },
+                { code: "02", name: "联合调试", defaultDuration: 5, isKeyTask: true, predecessorRef: "CM.02.01", sortOrder: 20 },
+                { code: "03", name: "竣工验收", defaultDuration: 3, isKeyTask: true, predecessorRef: "CM.02.02", sortOrder: 30 }
+              ]}
+          ]
+        },
+        {
+          code: "PD", name: "给排水系统", sortOrder: 1,
+          packages: [
+            { code: "01", name: "套管预埋", sortOrder: 10,
+              processes: [{ code: "01", name: "防水套管预埋", defaultDuration: 4, isKeyTask: true, predecessorRef: "CM.01.01", sortOrder: 10 }]},
+            { code: "02", name: "管道安装", sortOrder: 20,
+              processes: [
+                { code: "01", name: "给水主干管安装", defaultDuration: 4, isKeyTask: true, predecessorRef: "PD.01.01", sortOrder: 10 },
+                { code: "02", name: "排水主干管安装", defaultDuration: 4, isKeyTask: true, predecessorRef: "PD.01.01", sortOrder: 20 },
+                { code: "03", name: "给水支管安装",   defaultDuration: 3, isKeyTask: false, predecessorRef: "PD.02.01", sortOrder: 30 },
+                { code: "04", name: "排水支管安装",   defaultDuration: 3, isKeyTask: false, predecessorRef: "PD.02.02", sortOrder: 40 },
+                { code: "05", name: "管道试压",       defaultDuration: 2, isKeyTask: true, predecessorRef: null, sortOrder: 50 },
+              ]},
+            { code: "03", name: "设备安装", sortOrder: 30,
+              processes: [{ code: "01", name: "水泵安装", defaultDuration: 3, isKeyTask: true, predecessorRef: "PD.02.03", sortOrder: 10 }]},
+            { code: "04", name: "试验冲洗", sortOrder: 40,
+              processes: [{ code: "01", name: "管道试压冲洗", defaultDuration: 3, isKeyTask: true, predecessorRef: "PD.03.01", sortOrder: 10 }]}
+          ]
+        },
+        {
+          code: "EL", name: "电气系统", sortOrder: 2,
+          packages: [
+            { code: "01", name: "接地防雷预埋", sortOrder: 10,
+              processes: [
+                { code: "01", name: "接地网/防雷预埋", defaultDuration: 4, isKeyTask: false, predecessorRef: "CM.01.01", sortOrder: 10 },
+                { code: "02", name: "电气管线预埋",   defaultDuration: 5, isKeyTask: false, predecessorRef: "CM.01.01", sortOrder: 20 }
+              ]},
+            { code: "02", name: "桥架线槽", sortOrder: 20,
+              processes: [{ code: "01", name: "桥架安装", defaultDuration: 4, isKeyTask: true, predecessorRef: "EL.01.02", sortOrder: 10 }]},
+            { code: "03", name: "穿线敷设", sortOrder: 30,
+              processes: [{ code: "01", name: "电线电缆敷设", defaultDuration: 5, isKeyTask: true, predecessorRef: "EL.02.01", sortOrder: 10 }]},
+            { code: "04", name: "配电箱柜", sortOrder: 40,
+              processes: [{ code: "01", name: "配电箱安装", defaultDuration: 4, isKeyTask: true, predecessorRef: "EL.03.01", sortOrder: 10 }]},
+            { code: "05", name: "末端器具", sortOrder: 50,
+              processes: [
+                { code: "01", name: "开关插座安装", defaultDuration: 3, isKeyTask: false, predecessorRef: "EL.04.01", sortOrder: 10 },
+                { code: "02", name: "灯具安装",     defaultDuration: 3, isKeyTask: false, predecessorRef: "EL.04.01", sortOrder: 20 }
+              ]},
+            { code: "06", name: "调试试验", sortOrder: 60,
+              processes: [
+                { code: "01", name: "电气系统调试", defaultDuration: 3, isKeyTask: true, predecessorRef: "EL.05.01", sortOrder: 10 },
+                { code: "02", name: "电气系统调试", defaultDuration: 3, isKeyTask: true, predecessorRef: "EL.05.02", sortOrder: 20 }
+              ]}
+          ]
+        },
+        {
+          code: "HV", name: "暖通空调系统", sortOrder: 3,
+          packages: [
+            { code: "01", name: "风管制作安装", sortOrder: 10,
+              processes: [{ code: "01", name: "风管制作与安装", defaultDuration: 6, isKeyTask: true, predecessorRef: "CM.01.01", sortOrder: 10 }]},
+            { code: "02", name: "空调水管", sortOrder: 20,
+              processes: [{ code: "01", name: "空调水管安装", defaultDuration: 5, isKeyTask: true, predecessorRef: "HV.01.01", sortOrder: 10 }]},
+            { code: "03", name: "设备安装", sortOrder: 30,
+              processes: [
+                { code: "01", name: "风机盘管安装",     defaultDuration: 4, isKeyTask: true, predecessorRef: "HV.01.01", sortOrder: 10 },
+                { code: "02", name: "通风空调设备安装", defaultDuration: 5, isKeyTask: true, predecessorRef: "HV.02.01", sortOrder: 20 }
+              ]},
+            { code: "04", name: "防排烟", sortOrder: 40,
+              processes: [
+                { code: "01", name: "防排烟系统安装", defaultDuration: 5, isKeyTask: true, predecessorRef: "HV.03.01", sortOrder: 10 },
+                { code: "02", name: "通风系统调试",   defaultDuration: 2, isKeyTask: true, predecessorRef: "HV.03.02", sortOrder: 20 }
+              ]}
+          ]
+        },
+        {
+          code: "FP", name: "消防系统", sortOrder: 4,
+          packages: [
+            { code: "01", name: "消火栓系统", sortOrder: 10,
+              processes: [
+                { code: "01", name: "消火栓系统管道安装", defaultDuration: 5, isKeyTask: true, predecessorRef: "CM.01.01", sortOrder: 10 },
+                { code: "02", name: "消防环管安装",     defaultDuration: 5, isKeyTask: true, predecessorRef: "CM.01.01", sortOrder: 20 }
+              ]},
+            { code: "02", name: "喷淋及设备", sortOrder: 20,
+              processes: [
+                { code: "01", name: "自动喷淋系统管道安装", defaultDuration: 5, isKeyTask: true, predecessorRef: "FP.01.01", sortOrder: 10 },
+                { code: "02", name: "消防设备安装",       defaultDuration: 4, isKeyTask: true, predecessorRef: "FP.01.02", sortOrder: 20 }
+              ]}
+          ]
+        },
+        {
+          code: "BA", name: "智能化系统", sortOrder: 5,
+          packages: [
+            { code: "01", name: "管线预埋", sortOrder: 10,
+              processes: [{ code: "01", name: "智能化管线预埋", defaultDuration: 4, isKeyTask: true, predecessorRef: "CM.01.01", sortOrder: 10 }]},
+            { code: "02", name: "设备安装", sortOrder: 20,
+              processes: [{ code: "01", name: "智能化设备安装", defaultDuration: 5, isKeyTask: true, predecessorRef: "BA.01.01", sortOrder: 10 }]}
+          ]
+        }
+      ],
+      projectProfiles: {}
     }
   };
 }
@@ -1156,7 +1310,7 @@ export function markDocumentIndexed(projectId, documentId, metadata) {
   return structuredClone(document);
 }
 
-export function importSchedule(projectId, rows, actor, source) {
+export function importSchedule(projectId, rows, actor, source, options = {}) {
   const schedule = state.schedules[projectId];
   const importedAt = new Date().toISOString();
   schedule.nodes = rows.map((row) => ({
@@ -1170,26 +1324,36 @@ export function importSchedule(projectId, rows, actor, source) {
     sourceDocId: row.sourceDocId || null
   }));
   schedule.importedAt = importedAt;
-  schedule.milestones = schedule.nodes
-    .filter((item) => item.critical)
-    .slice(0, 3)
-    .map((item) => ({
-      id: nextId("milestone"),
-      name: item.name,
-      plannedDate: item.plannedDate,
-      varianceDays: item.varianceDays,
-      status: item.varianceDays < 0 ? "warning" : "normal"
-    }));
+  const providedMilestones = Array.isArray(options.milestones) ? options.milestones : [];
+  schedule.milestones = providedMilestones.length
+    ? providedMilestones.map((item) => ({
+        id: nextId("milestone"),
+        name: item.name,
+        plannedDate: item.plannedDate,
+        varianceDays: item.varianceDays ?? 0,
+        status: item.status || ((item.varianceDays ?? 0) < 0 ? "warning" : "normal")
+      }))
+    : schedule.nodes
+        .filter((item) => item.critical)
+        .slice(0, 3)
+        .map((item) => ({
+          id: nextId("milestone"),
+          name: item.name,
+          plannedDate: item.plannedDate,
+          varianceDays: item.varianceDays,
+          status: item.varianceDays < 0 ? "warning" : "normal"
+        }));
   schedule.importHistory.unshift({
     id: nextId("import"),
     actor: actor.name,
     importedAt,
     source,
-    rows: rows.length
+    rows: rows.length,
+    auditStatus: options.auditStatus || "unknown"
   });
   appendNotification(projectId, {
-    type: "warning",
-    title: `进度计划已导入：${rows.length} 个节点待分析`,
+    type: options.auditStatus === "passed" ? "digest" : "warning",
+    title: `进度计划已导入：${rows.length} 个节点${options.auditStatus === "passed" ? "，审核通过" : "待分析"}`,
     module: "schedule",
     createdAt: importedAt,
     recordId: schedule.importHistory[0].id
@@ -1200,7 +1364,7 @@ export function importSchedule(projectId, rows, actor, source) {
     action: "schedule.imported",
     recordId: schedule.importHistory[0].id,
     summary: `${actor.name} 导入进度计划：${source}，共 ${rows.length} 个节点。`,
-    metadata: { source, rows: rows.length }
+    metadata: { source, rows: rows.length, auditStatus: options.auditStatus || "unknown" }
   });
   return structuredClone(schedule);
 }
@@ -1440,4 +1604,287 @@ export function addCostSnapshot(projectId, payload, actor) {
     metadata: { varianceRate, note: snapshot.note }
   });
   return structuredClone({ snapshot, varianceRate });
+}
+
+
+// 导出完整的演示数据摘要，供 Agent 工具链使用
+export function getDemoData() {
+  const user = { id: 'project-manager', name: '张磊', title: '项目经理', scope: 'project', projectIds: ['proj-tianfu'] };
+  const project = getProject('proj-tianfu');
+  const schedule = buildScheduleView('proj-tianfu', user);
+  const safety = buildSafetyView('proj-tianfu', user);
+  const quality = buildQualityView('proj-tianfu', user);
+  const techCost = buildCostView('proj-tianfu', user);
+  const docs = buildDocumentsView('proj-tianfu', user);
+  return {
+    project,
+    nodes: schedule?.nodes || [],
+    rectifications: (safety?.rectifications || []).slice(0, 20),
+    qualityIssues: (quality?.issues || []).slice(0, 20),
+    costSnapshots: techCost?.costSnapshots || [],
+    contracts: techCost?.contracts || [],
+    documents: docs?.items || [],
+  };
+}
+
+
+export function listScheduledTasks(projectId) {
+  if (!state.scheduledTasks[projectId]) state.scheduledTasks[projectId] = [];
+  return structuredClone(state.scheduledTasks[projectId]);
+}
+
+export function addScheduledTask(projectId, payload, actor) {
+  if (!state.scheduledTasks[projectId]) state.scheduledTasks[projectId] = [];
+  const task = {
+    id: `st-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name: payload.name || "未命名任务",
+    ownerAgentId: payload.ownerAgentId || "pmo-agent",
+    taskType: payload.taskType || "analysis",
+    frequency: payload.frequency || "手动",
+    runAt: payload.runAt || "",
+    prompt: payload.prompt || "",
+    enabled: payload.enabled !== false,
+    assignee: payload.assignee || actor.name,
+    dueDate: payload.dueDate || "",
+    priority: payload.priority || "normal",
+    status: "pending",
+    projectId,
+    createdBy: actor.name,
+    createdAt: new Date().toISOString()
+  };
+  state.scheduledTasks[projectId].push(task);
+  appendAuditLog(projectId, {
+    actor,
+    module: "agents",
+    action: "scheduled-task.created",
+    recordId: task.id,
+    summary: `${actor.name} 新建计划任务：${task.name}。`,
+    metadata: { taskType: task.taskType, ownerAgentId: task.ownerAgentId }
+  });
+  return structuredClone(task);
+}
+
+
+// ── 以下为调度任务和工作流支持 ──
+
+export function buildWorkflowTestPlan(workflowId, projectId) {
+  const config = getWorkflowConfig(workflowId);
+  return {
+    workflow: config || { id: workflowId, name: workflowId, enabled: false },
+    projectId,
+    ownerModel: getAgentModelBinding((config || {}).ownerAgentId || "pmo-agent"),
+    routePlan: [
+      {
+        stage: "route",
+        ownerAgentId: (config || {}).ownerAgentId || "pmo-agent",
+        model: getAgentModelBinding((config || {}).ownerAgentId || "pmo-agent").chatModel
+      }
+    ],
+    available: true
+  };
+}
+
+
+// ── Agent 配置和 Workflow 支持 ──
+
+export function getAgentConfiguration() {
+  return structuredClone(state.agentConfig);
+}
+
+export function getAgentModelBinding(agentId) {
+  return structuredClone(state.agentConfig.modelBindings[agentId] || state.agentConfig.modelBindings["pmo-agent"]);
+}
+
+export function getWorkflowConfig(workflowId) {
+  return structuredClone(state.agentConfig.workflows.find((workflow) => workflow.id === workflowId) || { id: workflowId, enabled: true, name: workflowId, runType: "analysis", ownerAgentId: "pmo-agent" });
+}
+
+export function updateAgentModelBinding(agentId, patch) {
+  const next = {
+    ...getAgentModelBinding(agentId),
+    ...patch,
+    updatedAt: new Date().toISOString()
+  };
+  state.agentConfig.modelBindings[agentId] = next;
+  return structuredClone(next);
+}
+
+export function updateWorkflowConfig(workflowId, patch) {
+  const existingIndex = state.agentConfig.workflows.findIndex((workflow) => workflow.id === workflowId);
+  const next = {
+    ...(existingIndex >= 0 ? state.agentConfig.workflows[existingIndex] : { id: workflowId, enabled: true, name: workflowId, runType: "analysis", ownerAgentId: "pmo-agent" }),
+    ...patch,
+    updatedAt: new Date().toISOString()
+  };
+  if (existingIndex >= 0) state.agentConfig.workflows[existingIndex] = next;
+  else state.agentConfig.workflows.push(next);
+  return structuredClone(next);
+}
+
+// ============================================================
+// 工序编码库 · 查询方法
+// 6 系统 × 18 分项 × 30 工序，支持父子级层次
+// ============================================================
+
+export function getProcessLibraryTree() {
+  return structuredClone(state.processLibrary.systems);
+}
+
+export function getProcessLibraryFlat() {
+  const flat = [];
+  for (const sys of state.processLibrary.systems) {
+    for (const pkg of sys.packages) {
+      for (const proc of pkg.processes) {
+        flat.push({
+          fullCode: `${sys.code}.${pkg.code}.${proc.code}`,
+          systemCode: sys.code,
+          systemName: sys.name,
+          packageCode: pkg.code,
+          packageName: pkg.name,
+          processCode: proc.code,
+          name: proc.name,
+          defaultDuration: proc.defaultDuration,
+          isKeyTask: proc.isKeyTask,
+          predecessorRef: proc.predecessorRef,
+          sortOrder: proc.sortOrder
+        });
+      }
+    }
+  }
+  return flat;
+}
+
+export function getProcessByCode(fullCode) {
+  const parts = fullCode.split(".");
+  if (parts.length !== 3) return null;
+  const [sysCode, pkgCode, procCode] = parts;
+  const sys = state.processLibrary.systems.find((s) => s.code === sysCode);
+  if (!sys) return null;
+  const pkg = sys.packages.find((p) => p.code === pkgCode);
+  if (!pkg) return null;
+  const proc = pkg.processes.find((p) => p.code === procCode);
+  if (!proc) return null;
+  return {
+    fullCode,
+    systemCode: sysCode,
+    systemName: sys.name,
+    packageCode: pkgCode,
+    packageName: pkg.name,
+    processCode: procCode,
+    ...structuredClone(proc)
+  };
+}
+
+export function getParentCode(fullCode) {
+  const parts = fullCode.split(".");
+  if (parts.length !== 3) return null;
+  return `${parts[0]}.${parts[1]}`;
+}
+
+export function getCodeHierarchy(fullCode) {
+  const parts = fullCode.split(".");
+  if (parts.length !== 3) return [];
+  const [sysCode, pkgCode, procCode] = parts;
+  const system = state.processLibrary.systems.find((s) => s.code === sysCode);
+  if (!system) return [];
+  const hierarchy = [{ level: 1, code: sysCode, name: system.name }];
+  const pkgObj = system.packages.find((p) => p.code === pkgCode);
+  if (pkgObj) {
+    hierarchy.push({ level: 2, code: `${sysCode}.${pkgCode}`, name: pkgObj.name });
+    const procObj = pkgObj.processes.find((p) => p.code === procCode);
+    if (procObj) hierarchy.push({ level: 3, code: fullCode, name: procObj.name });
+  }
+  return hierarchy;
+}
+
+export function getProcessesBySystem(systemCode) {
+  const system = state.processLibrary.systems.find((s) => s.code === systemCode);
+  if (!system) return [];
+  const result = [];
+  for (const pkg of system.packages) {
+    for (const proc of pkg.processes) {
+      result.push({
+        fullCode: `${systemCode}.${pkg.code}.${proc.code}`,
+        systemCode,
+        systemName: system.name,
+        packageCode: pkg.code,
+        packageName: pkg.name,
+        ...structuredClone(proc)
+      });
+    }
+  }
+  return result;
+}
+
+// ============================================================
+// 实例化：将工序库编码实例化到一个项目的 schedule.nodes 中
+// ============================================================
+
+export function instantiateProcessLibraryToProject(projectId, options = {}) {
+  const project = state.projects.find((p) => p.id === projectId);
+  if (!project) throw Object.assign(new Error("not_found"), { statusCode: 404 });
+
+  const schedule = state.schedules[projectId];
+  const spaceKey = options.spaceKey || "tower";
+  const entityName = options.entityName || (project.buildings && project.buildings.length ? project.buildings[0].name : "塔楼");
+
+  const instances = [];
+  for (const sys of state.processLibrary.systems) {
+    for (const pkg of sys.packages) {
+      for (const proc of pkg.processes) {
+        const fullCode = `${sys.code}.${pkg.code}.${proc.code}`;
+        const id = `mep-${spaceKey}-${entityName.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, "")}-${fullCode.replace(/\./g, "-")}`;
+        instances.push({
+          id,
+          code: fullCode,
+          systemCode: sys.code,
+          systemName: sys.name,
+          packageCode: pkg.code,
+          packageName: pkg.name,
+          processCode: proc.code,
+          name: `${entityName} · ${sys.name} · ${proc.name}`,
+          owner: "机电工程师",
+          percent: 0,
+          plannedDate: options.startDate || new Date().toISOString().split("T")[0],
+          varianceDays: 0,
+          critical: proc.isKeyTask,
+          durationDays: options.durationOverrides && options.durationOverrides[fullCode] !== undefined
+            ? options.durationOverrides[fullCode]
+            : (proc.defaultDuration || 3),
+          trade: "机电",
+          area: entityName,
+          entityName,
+          system: sys.name,
+          predecessor: "",
+          groupCode: `${sys.code}.${pkg.code}`,
+          groupName: pkg.name,
+          isSummary: false,
+          source: "process-library"
+        });
+      }
+    }
+  }
+
+  // 解析前置引用（第二遍，确保 ID 都已生成）
+  for (const inst of instances) {
+    if (inst.predecessor) continue; // 已手动设过
+    const proc = findProcInHierarchy(inst.systemCode, inst.packageCode, inst.processCode);
+    if (proc && proc.predecessorRef) {
+      const target = instances.find((n) => n.code === proc.predecessorRef);
+      inst.predecessor = target ? target.id : proc.predecessorRef;
+    }
+  }
+
+  if (!schedule.nodes) schedule.nodes = [];
+  schedule.nodes.push(...instances);
+
+  return structuredClone(instances);
+}
+
+function findProcInHierarchy(systemCode, packageCode, processCode) {
+  const sys = state.processLibrary.systems.find((s) => s.code === systemCode);
+  if (!sys) return null;
+  const pkg = sys.packages.find((p) => p.code === packageCode);
+  if (!pkg) return null;
+  return pkg.processes.find((p) => p.code === processCode) || null;
 }

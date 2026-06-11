@@ -1,0 +1,63 @@
+{
+  "projectType": "residential",
+  "label": "住宅项目总进度流水规则库",
+  "version": "1.0.0",
+  "templateBaseOffsets": {
+    "MASTER-PREP": 0,
+    "TP-BASE-001": 15,
+    "TP-STR-001": 55,
+    "TP-MEP-01": 90,
+    "TP-SEC-01": 125,
+    "TP-FIN-01": 150,
+    "TP-EXT-01": 185
+  },
+  "rules": [
+    {
+      "id": "structure-by-building",
+      "target": "TP-STR-001",
+      "mode": "by-building",
+      "description": "主体结构按楼栋展开，首层、标准层、顶层可使用不同节拍。"
+    },
+    {
+      "id": "basement-by-zone",
+      "target": "TP-BASE-001",
+      "mode": "by-basement-zone",
+      "description": "地下室按分区展开。"
+    },
+    {
+      "id": "secondary-lag-structure",
+      "target": "TP-SEC-01",
+      "mode": "lag-floors",
+      "lagFloorsMin": 3,
+      "lagFloorsMax": 5,
+      "description": "二次结构默认滞后主体 3-5 层插入。"
+    },
+    {
+      "id": "tower-mep-lag-structure",
+      "target": "tower",
+      "mode": "lag-floors",
+      "lagFloorsMin": 5,
+      "lagFloorsMax": 8,
+      "description": "塔楼标准层机电默认滞后主体 5-8 层插入。"
+    },
+    {
+      "id": "basement-mep-after-structure",
+      "target": "basement",
+      "mode": "after-structure",
+      "description": "地下室机电默认在地下室结构完成后插入。"
+    },
+    {
+      "id": "ceiling-after-concealed-acceptance",
+      "target": "ceiling",
+      "mode": "after-constraint",
+      "constraint": "concealedAcceptance",
+      "description": "吊顶区默认受机电隐蔽验收约束。"
+    },
+    {
+      "id": "outdoor-after-topping-out",
+      "target": "TP-EXT-01",
+      "mode": "after-structure",
+      "description": "室外配套工程可在主体封顶后穿插。"
+    }
+  ]
+}

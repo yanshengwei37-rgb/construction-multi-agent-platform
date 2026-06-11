@@ -1,0 +1,28 @@
+{
+  "projectType": "residential",
+  "label": "住宅项目总进度工期参数库",
+  "version": "1.0.0",
+  "baseDurations": {
+    "structure.standardFloor": { "min": 5, "max": 7, "unit": "day/floor" },
+    "secondary.masonry": { "min": 3, "max": 5, "unit": "day/floor" },
+    "basement.level": { "min": 25, "max": 35, "unit": "day/level" },
+    "elevator.installAcceptance": { "min": 45, "max": 60, "unit": "day/unit" }
+  },
+  "modeFactors": {
+    "wood": 1.05,
+    "aluminum": 0.92,
+    "precast": 0.88,
+    "firstFloor": 1.15,
+    "standardFloor": 1,
+    "topFloor": 1.1
+  },
+  "conditionFactors": {
+    "weather": 1.08,
+    "winter": 1.12,
+    "highRise": 1.06,
+    "multiBasement": 1.08,
+    "towerCraneMissing": 1.12,
+    "elevatorMissing": 1.15,
+    "concurrentLoose": 0.95
+  }
+}

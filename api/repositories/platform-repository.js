@@ -5,6 +5,7 @@ import {
   addQualityIssueRecheck,
   addRectificationFeedback,
   addSafetyInspection,
+  addScheduledTask,
   appendAgentInsight,
   appendAuditLog,
   appendNotification,
@@ -20,20 +21,41 @@ import {
   createAgentRun,
   ensureProjectAccess,
   failAgentRun,
+  buildWorkflowTestPlan,
+  getAgentConfiguration,
+  getAgentModelBinding,
   getProject,
   getProvidersSelection,
   getState,
   getUsers,
+  getWorkflowConfig,
   importSchedule,
   listAccessibleProjects,
   listAuditLogs,
   listAgentInsights,
   listAgentRuns,
+  listScheduledTasks,
   listNotifications,
   markDocumentIndexed,
   resolveUser,
-  setProviderSelection
+  setProviderSelection,
+  updateAgentModelBinding,
+  updateWorkflowConfig,
+  // 工序编码库
+  getProcessLibraryTree,
+  getProcessLibraryFlat,
+  getProcessByCode,
+  getParentCode,
+  getCodeHierarchy,
+  getProcessesBySystem,
+  instantiateProcessLibraryToProject
 } from "../data/store.js";
+import { getPlatformBlueprint } from "../data/platform-blueprint.js";
+import {
+  generateScheduleWizard,
+  getScheduleLibrariesSummary,
+  previewScheduleWizard
+} from "../services/schedule-engine.js";
 
 export function createInMemoryPlatformRepository() {
   return {
@@ -45,10 +67,14 @@ export function createInMemoryPlatformRepository() {
     },
     model: {
       getProviderSelection: getProvidersSelection,
-      setProviderSelection
+      setProviderSelection,
+      getAgentBinding: getAgentModelBinding
     },
     portfolio: {
       buildView: buildPortfolioView
+    },
+    platform: {
+      getBlueprint: getPlatformBlueprint
     },
     projects: {
       get: getProject,
@@ -67,7 +93,14 @@ export function createInMemoryPlatformRepository() {
     },
     schedule: {
       buildView: buildScheduleView,
-      import: importSchedule
+      import: importSchedule,
+      getLibrariesSummary: getScheduleLibrariesSummary,
+      preview(projectId, wizardData) {
+        return previewScheduleWizard(getProject(projectId), wizardData);
+      },
+      generate(projectId, wizardData) {
+        return generateScheduleWizard(getProject(projectId), wizardData);
+      }
     },
     documents: {
       buildView: buildDocumentsView,
@@ -99,13 +132,29 @@ export function createInMemoryPlatformRepository() {
       list: listAuditLogs,
       append: appendAuditLog
     },
+    processLibrary: {
+      getTree: getProcessLibraryTree,
+      getFlat: getProcessLibraryFlat,
+      getByCode: getProcessByCode,
+      getParentCode,
+      getCodeHierarchy,
+      getProcessesBySystem,
+      instantiateToProject: instantiateProcessLibraryToProject
+    },
     agents: {
+      getConfig: getAgentConfiguration,
+      updateModelBinding: updateAgentModelBinding,
+      getWorkflow: getWorkflowConfig,
+      updateWorkflow: updateWorkflowConfig,
+      buildWorkflowTestPlan,
       listInsights: listAgentInsights,
       appendInsight: appendAgentInsight,
       listRuns: listAgentRuns,
       createRun: createAgentRun,
       completeRun: completeAgentRun,
-      failRun: failAgentRun
+      failRun: failAgentRun,
+      listScheduledTasks,
+      addScheduledTask
     }
   };
 }

@@ -1,0 +1,79 @@
+{
+  "projectType": "residential",
+  "label": "住宅项目总进度逻辑关系库",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "id": "structure-to-tower-embed",
+      "from_task_key": "TP-STR-001",
+      "to_task_key": "tower.embed",
+      "relationship": "SS",
+      "lag_days": 0,
+      "condition_tags": ["tower", "mep"],
+      "scope": "cross-space"
+    },
+    {
+      "id": "basement-structure-to-basement-mep",
+      "from_task_key": "TP-BASE-001",
+      "to_task_key": "basement.main",
+      "relationship": "FS",
+      "lag_days": 0,
+      "condition_tags": ["basement", "mep"],
+      "scope": "cross-space"
+    },
+    {
+      "id": "masonry-to-second-fix",
+      "from_task_key": "TP-SEC-01",
+      "to_task_key": "tower.terminal",
+      "relationship": "FS",
+      "lag_days": 0,
+      "condition_tags": ["tower", "electrical_or_plumbing"],
+      "scope": "cross-template"
+    },
+    {
+      "id": "concealed-acceptance-to-ceiling-close",
+      "from_task_key": "tower.acceptance",
+      "to_task_key": "TP-SEC-01",
+      "relationship": "FS",
+      "lag_days": 0,
+      "condition_tags": ["ceiling", "concealedAcceptance"],
+      "scope": "cross-space"
+    },
+    {
+      "id": "foundation-plus-arrival-to-equipment-install",
+      "from_task_key": "equipment.foundation",
+      "to_task_key": "equipment.install",
+      "relationship": "FS",
+      "lag_days": 0,
+      "condition_tags": ["equipmentFoundation", "equipmentArrival"],
+      "scope": "intra-template"
+    },
+    {
+      "id": "formal-power-to-commission",
+      "from_task_key": "outdoor.handover",
+      "to_task_key": "equipment.commission",
+      "relationship": "FS",
+      "lag_days": 0,
+      "condition_tags": ["formalPower"],
+      "scope": "cross-space"
+    },
+    {
+      "id": "fire-linkage-to-acceptance",
+      "from_task_key": "basement.acceptance",
+      "to_task_key": "TP-EXT-01",
+      "relationship": "FS",
+      "lag_days": 0,
+      "condition_tags": ["fire", "fireLinkage"],
+      "scope": "cross-template"
+    },
+    {
+      "id": "elevator-to-acceptance",
+      "from_task_key": "equipment.acceptance",
+      "to_task_key": "TP-EXT-01",
+      "relationship": "FS",
+      "lag_days": 0,
+      "condition_tags": ["elevator", "formalPower"],
+      "scope": "cross-template"
+    }
+  ]
+}

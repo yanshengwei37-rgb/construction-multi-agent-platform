@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE and local configs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OpenClaw agent files
+.openclaw/
+AGENTS.md
+HEARTBEAT.md
+IDENTITY.md
+SOUL.md
+TOOLS.md
+USER.md
+
+# Agent learnings
+.ai/
+.learnings/
+
+# Backup files
+*.bak.*
+*.snapshot
+*.bak.*
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*

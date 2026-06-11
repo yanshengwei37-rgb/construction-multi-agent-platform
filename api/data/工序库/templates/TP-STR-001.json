@@ -1,0 +1,87 @@
+{
+  "template_id": "TP-STR-001",
+  "template_name": "主体结构模板",
+  "template_category": "主体结构",
+  "version": "2.0",
+  "mode_required": true,
+  "适用结构类型": ["剪力墙结构", "装配式混凝土结构"],
+  "适用项目类型": ["住宅小区", "商业综合体", "公共建筑"],
+  "是否默认启用": true,
+  "modes": [
+    {
+      "mode_id": "wood",
+      "mode_name": "木模体系",
+      "description": "适用于剪力墙结构，采用传统木模/胶合板模板体系。含内支模架搭设，墙柱钢筋与墙柱模板穿插施工。",
+      "formwork_type": "wood",
+      "applicableStructures": ["剪力墙结构"],
+      "standard_cycle_days": 5,
+      "楼层差异": {
+        "首层":  { "extraDays": 5, "desc": "配模设计+裁切+预拼装", "cycleDays": 10 },
+        "2F~4F": { "extraDays": 2, "desc": "配模调整", "cycleDays": 7 },
+        "5F~N-1F": { "extraDays": 0, "desc": "标准层", "cycleDays": 5 },
+        "顶层": { "extraDays": 4, "desc": "补模+吊模", "cycleDays": 9 }
+      },
+      "tasks": [
+        { "task_id": "WD-001", "task_name": "测量放线", "enabled": true, "sequence_no": 1, "default_duration_days": 0.5, "predecessors": [], "is_key_task": true, "inspection_required": false, "allow_overlap": false },
+        { "task_id": "WD-002", "task_name": "内支模架搭设", "enabled": true, "sequence_no": 2, "default_duration_days": 1, "predecessors": [{"task_id": "WD-001", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": false, "allow_overlap": false },
+        { "task_id": "WD-003", "task_name": "墙柱钢筋绑扎", "enabled": true, "sequence_no": 3, "default_duration_days": 2, "predecessors": [{"task_id": "WD-002", "relationship": "SS", "lag_days": 0}], "is_key_task": true, "inspection_required": false, "allow_overlap": true },
+        { "task_id": "WD-004", "task_name": "墙柱模板支设", "enabled": true, "sequence_no": 4, "default_duration_days": 1.5, "predecessors": [{"task_id": "WD-003", "relationship": "SS", "lag_days": 0.5}], "is_key_task": false, "inspection_required": false, "allow_overlap": true },
+        { "task_id": "WD-005", "task_name": "梁板模板安装", "enabled": true, "sequence_no": 5, "default_duration_days": 1.5, "predecessors": [{"task_id": "WD-002", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": false, "allow_overlap": false },
+        { "task_id": "WD-006", "task_name": "梁板钢筋绑扎", "enabled": true, "sequence_no": 6, "default_duration_days": 1.5, "predecessors": [{"task_id": "WD-005", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": false, "allow_overlap": false },
+        { "task_id": "WD-007", "task_name": "隐蔽工程验收", "enabled": true, "sequence_no": 7, "default_duration_days": 0.5, "predecessors": [{"task_id": "WD-006", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": true, "allow_overlap": false },
+        { "task_id": "WD-008", "task_name": "混凝土浇筑", "enabled": true, "sequence_no": 8, "default_duration_days": 0.5, "predecessors": [{"task_id": "WD-007", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": true, "allow_overlap": false }
+      ]
+    },
+    {
+      "mode_id": "aluminum",
+      "mode_name": "铝模体系",
+      "description": "适用于剪力墙结构，采用铝合金模板体系。墙柱钢筋与铝模安装穿插施工，拼装快、成型好。",
+      "formwork_type": "aluminum",
+      "applicableStructures": ["剪力墙结构"],
+      "standard_cycle_days": 5.5,
+      "楼层差异": {
+        "首层（木模）": { "cycleDays": 10, "desc": "木模配模+施工" },
+        "2F（首层铝模拼装）": { "cycleDays": 8, "desc": "铝模首次安装调校" },
+        "3F": { "cycleDays": 7, "desc": "铝模调整" },
+        "4F~N-1F": { "cycleDays": 5.5, "desc": "标准层" },
+        "顶层（铝木结合）": { "cycleDays": 10, "desc": "铝木结合+木模补充" }
+      },
+      "tasks": [
+        { "task_id": "AL-001", "task_name": "测量放线", "enabled": true, "sequence_no": 1, "default_duration_days": 0.5, "predecessors": [], "is_key_task": true, "inspection_required": false, "allow_overlap": false },
+        { "task_id": "AL-002", "task_name": "墙柱钢筋绑扎+铝模安装", "enabled": true, "sequence_no": 2, "default_duration_days": 1.5, "predecessors": [{"task_id": "AL-001", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": false, "allow_overlap": true },
+        { "task_id": "AL-003", "task_name": "梁板铝模安装", "enabled": true, "sequence_no": 3, "default_duration_days": 1.5, "predecessors": [{"task_id": "AL-002", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": false, "allow_overlap": false },
+        { "task_id": "AL-004", "task_name": "梁板钢筋绑扎", "enabled": true, "sequence_no": 4, "default_duration_days": 1.5, "predecessors": [{"task_id": "AL-003", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": false, "allow_overlap": false },
+        { "task_id": "AL-005", "task_name": "隐蔽工程验收", "enabled": true, "sequence_no": 5, "default_duration_days": 0.5, "predecessors": [{"task_id": "AL-004", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": true, "allow_overlap": false },
+        { "task_id": "AL-006", "task_name": "混凝土浇筑", "enabled": true, "sequence_no": 6, "default_duration_days": 0.5, "predecessors": [{"task_id": "AL-005", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": true, "allow_overlap": false }
+      ]
+    },
+    {
+      "mode_id": "precast",
+      "mode_name": "装配式结构（铝模体系）",
+      "description": "适用于装配式混凝土结构，采用铝模+叠合板体系。墙柱现浇+铝模，水平构件预制叠合板吊装。",
+      "formwork_type": "aluminum",
+      "applicableStructures": ["装配式混凝土结构"],
+      "standard_cycle_days": 5.5,
+      "楼层差异": {
+        "首层": { "cycleDays": 10, "desc": "木模配模+施工" },
+        "2F~4F": { "cycleDays": 8, "desc": "铝模拼装调整" },
+        "5F~N-1F": { "cycleDays": 5.5, "desc": "标准层" },
+        "顶层": { "cycleDays": 9, "desc": "铝木结合" }
+      },
+      "tasks": [
+        { "task_id": "PCA-001", "task_name": "测量放线", "enabled": true, "sequence_no": 1, "default_duration_days": 0.5, "predecessors": [], "is_key_task": true, "inspection_required": false, "allow_overlap": false },
+        { "task_id": "PCA-002", "task_name": "墙柱钢筋绑扎+铝模安装", "enabled": true, "sequence_no": 2, "default_duration_days": 1.5, "predecessors": [{"task_id": "PCA-001", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": false, "allow_overlap": true },
+        { "task_id": "PCA-003", "task_name": "梁板铝模安装", "enabled": true, "sequence_no": 3, "default_duration_days": 1, "predecessors": [{"task_id": "PCA-002", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "inspection_required": false, "allow_overlap": false },
+        { "task_id": "PCA-004", "task_name": "叠合板吊装", "enabled": true, "sequence_no": 4, "default_duration_days": 0.5, "predecessors": [{"task_id": "PCA-003", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": true, "allow_overlap": false, "resource_reference": {"labor": ["吊装班组"], "machine": ["塔吊"]} },
+        { "task_id": "PCA-005", "task_name": "梁板钢筋绑扎", "enabled": true, "sequence_no": 5, "default_duration_days": 1.5, "predecessors": [{"task_id": "PCA-004", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": false, "allow_overlap": false },
+        { "task_id": "PCA-006", "task_name": "隐蔽工程验收", "enabled": true, "sequence_no": 6, "default_duration_days": 0.5, "predecessors": [{"task_id": "PCA-005", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": true, "allow_overlap": false },
+        { "task_id": "PCA-007", "task_name": "混凝土浇筑", "enabled": true, "sequence_no": 7, "default_duration_days": 0.5, "predecessors": [{"task_id": "PCA-006", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "inspection_required": true, "allow_overlap": false }
+      ]
+    }
+  ],
+  "可编辑字段": ["enabled", "task_name", "duration_days", "predecessors", "relationship_type", "lag_days", "is_key_task", "allow_overlap", "remark"],
+  "生成规则": {
+    "楼栋推断": "根据楼栋结构类型和用户选择的模板体系生成，按楼层差异调整工期",
+    "地下室推断": "N/A"
+  }
+}

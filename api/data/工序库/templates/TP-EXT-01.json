@@ -1,0 +1,21 @@
+{
+  "template_id": "TP-EXT-01",
+  "template_name": "室外配套工程",
+  "template_category": "室外工程",
+  "version": "1.1",
+  "mode_required": false,
+  "适用结构类型": ["剪力墙结构", "框架结构", "框架-剪力墙结构"],
+  "适用项目类型": ["住宅小区", "商业综合体"],
+  "是否默认启用": true,
+  "task_list": [
+    { "task_id": "EXT-001", "task_name": "室外管网施工", "enabled": true, "sequence_no": 1, "stage": "室外配套", "default_duration_days": 10, "predecessors": [], "is_key_task": true, "is_inspection_node": true, "allow_overlap": false, "适用楼层范围": "N/A", "allow_edit": true, "allow_delete": true },
+    { "task_id": "EXT-002", "task_name": "道路及铺装施工", "enabled": true, "sequence_no": 2, "stage": "室外配套", "default_duration_days": 10, "predecessors": [{"task_id": "EXT-001", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false, "allow_overlap": false, "适用楼层范围": "N/A", "allow_edit": true, "allow_delete": true },
+    { "task_id": "EXT-003", "task_name": "园林绿化施工", "enabled": true, "sequence_no": 3, "stage": "室外配套", "default_duration_days": 10, "predecessors": [{"task_id": "EXT-002", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false, "allow_overlap": true, "适用楼层范围": "N/A", "allow_edit": true, "allow_delete": true },
+    { "task_id": "EXT-004", "task_name": "室外配套验收", "enabled": true, "sequence_no": 4, "stage": "室外配套", "default_duration_days": 3, "predecessors": [{"task_id": "EXT-003", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "is_inspection_node": true, "allow_overlap": false, "适用楼层范围": "N/A", "allow_edit": true, "allow_delete": true }
+  ],
+  "可编辑字段": ["enabled", "task_name", "duration_days", "predecessors", "relationship_type", "lag_days", "is_key_task", "is_inspection_node", "allow_overlap", "remark"],
+  "生成规则": {
+    "楼栋推断": "N/A",
+    "地下室推断": "室外配套按项目整体生成"
+  }
+}

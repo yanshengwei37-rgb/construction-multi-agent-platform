@@ -31,6 +31,7 @@ agent worker -> project context/repository data
 - `techCost`: 技术方案、规范、合同与成本底层演示数据。
 - `notifications`: 站内消息、待办、提醒。
 - `agents`: AgentRun、AgentInsight、异步任务状态。
+- `agentConfig`: 每个 Agent 的模型绑定、组织架构节点、工作流定义与测试计划。
 - `model`: 当前模型通道与供应商配置。
 - `audit`: 项目级审计日志，记录关键写操作、Agent 任务状态、资料解析和整改反馈。
 
@@ -69,6 +70,7 @@ agent worker -> project context/repository data
 ## 关键约束
 
 - Agent 结论必须带引用，至少引用一个 WBS、资料、整改或巡检记录。
+- AgentRun 应按工作流 ownerAgentId 读取模型绑定，不直接使用全局模型通道。
 - 写操作必须能追踪 actor、projectId、recordId、时间和来源。
 - 审计日志只追加不覆盖，后续接数据库时应独立成表，并按 project_id、module、created_at 建索引。
 - 公司层接口不能绕过权限读取全部项目。

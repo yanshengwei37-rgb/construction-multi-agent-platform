@@ -1,0 +1,79 @@
+{
+  "template_id": "TP-FIN-01",
+  "template_name": "装饰装修工程",
+  "template_category": "装饰装修",
+  "version": "1.0",
+  "mode_required": true,
+  "适用结构类型": ["剪力墙结构", "框架结构", "框架-剪力墙结构"],
+  "适用项目类型": ["住宅小区", "商业综合体"],
+  "是否默认启用": true,
+  "modes": [
+    {
+      "mode_id": "interior",
+      "mode_name": "户内装修",
+      "description": "户内精装修工程，含墙面、地面、吊顶、门窗、安装等",
+      "tasks": [
+        { "task_id": "FIN-IN-001", "task_name": "内墙抹灰", "enabled": true, "sequence_no": 1, "stage": "户内装修", "default_duration_days": 7, "predecessors": [], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "FIN-IN-002", "task_name": "门窗安装", "enabled": true, "sequence_no": 2, "stage": "户内装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-IN-001", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-IN-003", "task_name": "地坪施工", "enabled": true, "sequence_no": 3, "stage": "户内装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-IN-001", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-IN-004", "task_name": "吊顶工程", "enabled": true, "sequence_no": 4, "stage": "户内装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-IN-003", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-IN-005", "task_name": "涂料/油漆工程", "enabled": true, "sequence_no": 5, "stage": "户内装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-IN-004", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-IN-006", "task_name": "地面装饰", "enabled": true, "sequence_no": 6, "stage": "户内装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-IN-005", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-IN-007", "task_name": "安装工程（洁具/灯具/开关面板等）", "enabled": true, "sequence_no": 7, "stage": "户内装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-IN-006", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": true },
+        { "task_id": "FIN-IN-008", "task_name": "精装样板施工", "enabled": true, "sequence_no": 8, "stage": "户内装修", "default_duration_days": 10, "predecessors": [{"task_id": "FIN-IN-001", "relationship": "SS", "lag_days": 0}], "is_key_task": true, "is_inspection_node": true }
+      ]
+    },
+    {
+      "mode_id": "public",
+      "mode_name": "公区装修",
+      "description": "公共区域装修工程，含大堂、走廊、电梯厅等",
+      "tasks": [
+        { "task_id": "FIN-PB-001", "task_name": "公区墙面抹灰", "enabled": true, "sequence_no": 1, "stage": "公区装修", "default_duration_days": 5, "predecessors": [], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "FIN-PB-002", "task_name": "公区地坪施工", "enabled": true, "sequence_no": 2, "stage": "公区装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-PB-001", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-PB-003", "task_name": "公区吊顶安装", "enabled": true, "sequence_no": 3, "stage": "公区装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-PB-002", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-PB-004", "task_name": "公区墙面装饰", "enabled": true, "sequence_no": 4, "stage": "公区装修", "default_duration_days": 7, "predecessors": [{"task_id": "FIN-PB-003", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-PB-005", "task_name": "电梯厅精装修", "enabled": true, "sequence_no": 5, "stage": "公区装修", "default_duration_days": 7, "predecessors": [{"task_id": "FIN-PB-004", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "FIN-PB-006", "task_name": "大堂精装修", "enabled": true, "sequence_no": 6, "stage": "公区装修", "default_duration_days": 10, "predecessors": [{"task_id": "FIN-PB-005", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "is_inspection_node": true }
+      ]
+    },
+    {
+      "mode_id": "exterior",
+      "mode_name": "外墙装修",
+      "description": "外墙面装修工程，含保温、饰面等",
+      "tasks": [
+        { "task_id": "FIN-EX-001", "task_name": "外墙保温施工", "enabled": true, "sequence_no": 1, "stage": "外墙装修", "default_duration_days": 7, "predecessors": [], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "FIN-EX-002", "task_name": "外墙抹灰", "enabled": true, "sequence_no": 2, "stage": "外墙装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-EX-001", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-EX-003", "task_name": "外墙饰面施工", "enabled": true, "sequence_no": 3, "stage": "外墙装修", "default_duration_days": 7, "predecessors": [{"task_id": "FIN-EX-002", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "FIN-EX-004", "task_name": "外墙涂料/真石漆", "enabled": true, "sequence_no": 4, "stage": "外墙装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-EX-003", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false }
+      ]
+    },
+    {
+      "mode_id": "curtain",
+      "mode_name": "幕墙装修",
+      "description": "幕墙工程，含玻璃幕墙、石材幕墙等",
+      "tasks": [
+        { "task_id": "FIN-CT-001", "task_name": "幕墙预埋件安装", "enabled": true, "sequence_no": 1, "stage": "幕墙装修", "default_duration_days": 5, "predecessors": [], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "FIN-CT-002", "task_name": "幕墙龙骨安装", "enabled": true, "sequence_no": 2, "stage": "幕墙装修", "default_duration_days": 7, "predecessors": [{"task_id": "FIN-CT-001", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-CT-003", "task_name": "幕墙面板安装", "enabled": true, "sequence_no": 3, "stage": "幕墙装修", "default_duration_days": 10, "predecessors": [{"task_id": "FIN-CT-002", "relationship": "FS", "lag_days": 0}], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "FIN-CT-004", "task_name": "幕墙打胶/密封", "enabled": true, "sequence_no": 4, "stage": "幕墙装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-CT-003", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-CT-005", "task_name": "幕墙淋水试验", "enabled": true, "sequence_no": 5, "stage": "幕墙装修", "default_duration_days": 3, "predecessors": [{"task_id": "FIN-CT-004", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": true }
+      ]
+    },
+    {
+      "mode_id": "basement_finish",
+      "mode_name": "地下室装修",
+      "description": "地下室装饰装修工程",
+      "tasks": [
+        { "task_id": "FIN-BF-001", "task_name": "地下室墙面抹灰", "enabled": true, "sequence_no": 1, "stage": "地下室装修", "default_duration_days": 5, "predecessors": [], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-BF-002", "task_name": "地下室地坪施工", "enabled": true, "sequence_no": 2, "stage": "地下室装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-BF-001", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-BF-003", "task_name": "地下室涂料/油漆", "enabled": true, "sequence_no": 3, "stage": "地下室装修", "default_duration_days": 5, "predecessors": [{"task_id": "FIN-BF-002", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "FIN-BF-004", "task_name": "地下室标识标牌", "enabled": true, "sequence_no": 4, "stage": "地下室装修", "default_duration_days": 3, "predecessors": [{"task_id": "FIN-BF-003", "relationship": "FS", "lag_days": 0}], "is_key_task": false, "is_inspection_node": false }
+      ]
+    }
+  ],
+  "可编辑字段": ["enabled", "task_name", "duration_days", "predecessors", "relationship_type", "lag_days", "is_key_task", "is_inspection_node", "allow_overlap", "remark"],
+  "生成规则": {
+    "楼栋推断": "按楼栋逐栋生成，各装修类型按楼栋分别编制",
+    "地下室推断": "地下室装修适用于地下室区域，按楼层编制"
+  }
+}

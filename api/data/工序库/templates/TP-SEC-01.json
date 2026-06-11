@@ -1,0 +1,190 @@
+{
+  "template_id": "TP-SEC-01",
+  "template_name": "二次结构及砌体工程",
+  "template_category": "二次结构",
+  "version": "2.1",
+  "mode_required": true,
+  "适用结构类型": [
+    "剪力墙结构",
+    "框架结构",
+    "框架-剪力墙结构"
+  ],
+  "适用项目类型": [
+    "住宅小区",
+    "商业综合体",
+    "公共建筑"
+  ],
+  "是否默认启用": true,
+  "modes": [
+    {
+      "mode_id": "wood",
+      "mode_name": "木模体系",
+      "description": "适用于传统木模/胶合板模板体系的二次结构施工。",
+      "applicableStructures": [
+        "剪力墙结构",
+        "框架结构",
+        "框架-剪力墙结构"
+      ],
+      "tasks": [
+        {
+          "task_id": "SEC-WD-001",
+          "task_name": "测量放线",
+          "enabled": true,
+          "sequence_no": 1,
+          "stage": "木模体系",
+          "mode_id": "wood",
+          "default_duration_days": 1,
+          "predecessors": [],
+          "is_key_task": true,
+          "is_inspection_node": false
+        },
+        {
+          "task_id": "SEC-WD-002",
+          "task_name": "反边凿毛、支模、浇筑",
+          "enabled": true,
+          "sequence_no": 2,
+          "stage": "木模体系",
+          "mode_id": "wood",
+          "default_duration_days": 3,
+          "predecessors": [],
+          "is_key_task": true,
+          "is_inspection_node": false
+        },
+        {
+          "task_id": "SEC-WD-003",
+          "task_name": "材料运输",
+          "enabled": true,
+          "sequence_no": 3,
+          "stage": "木模体系",
+          "mode_id": "wood",
+          "default_duration_days": 1,
+          "predecessors": [],
+          "is_key_task": true,
+          "is_inspection_node": false
+        },
+        {
+          "task_id": "SEC-WD-004",
+          "task_name": "ALC条板安装",
+          "enabled": true,
+          "sequence_no": 4,
+          "stage": "木模体系",
+          "mode_id": "wood",
+          "default_duration_days": 2,
+          "predecessors": [],
+          "is_key_task": true,
+          "is_inspection_node": false
+        },
+        {
+          "task_id": "SEC-WD-005",
+          "task_name": "砌筑",
+          "enabled": true,
+          "sequence_no": 5,
+          "stage": "木模体系",
+          "mode_id": "wood",
+          "default_duration_days": 2,
+          "predecessors": [],
+          "is_key_task": true,
+          "is_inspection_node": false
+        },
+        {
+          "task_id": "SEC-WD-006",
+          "task_name": "过梁、压顶支模、浇筑",
+          "enabled": true,
+          "sequence_no": 6,
+          "stage": "木模体系",
+          "mode_id": "wood",
+          "default_duration_days": 2,
+          "predecessors": [],
+          "is_key_task": true,
+          "is_inspection_node": false
+        },
+        {
+          "task_id": "SEC-WD-007",
+          "task_name": "收尾",
+          "enabled": true,
+          "sequence_no": 7,
+          "stage": "木模体系",
+          "mode_id": "wood",
+          "default_duration_days": 14,
+          "predecessors": [],
+          "is_key_task": true,
+          "is_inspection_node": false
+        }
+      ]
+    },
+    {
+      "mode_id": "aluminum",
+      "mode_name": "铝模体系",
+      "description": "适用于铝合金模板体系的二次结构施工。",
+      "applicableStructures": [
+        "剪力墙结构",
+        "框架结构",
+        "框架-剪力墙结构"
+      ],
+      "tasks": [
+        {
+          "task_id": "SEC-AL-001",
+          "task_name": "测量放线",
+          "default_duration_days": 1,
+          "predecessors": [],
+          "is_key_task": true
+        },
+        {
+          "task_id": "SEC-AL-002",
+          "task_name": "材料运输",
+          "default_duration_days": 1,
+          "predecessors": [
+            {
+              "task_id": "SEC-AL-001",
+              "relationship": "FS",
+              "lag_days": 0
+            }
+          ],
+          "is_key_task": false
+        },
+        {
+          "task_id": "SEC-AL-003",
+          "task_name": "ALC条板安装",
+          "default_duration_days": 2,
+          "predecessors": [
+            {
+              "task_id": "SEC-AL-002",
+              "relationship": "FS",
+              "lag_days": 0
+            }
+          ],
+          "is_key_task": true
+        },
+        {
+          "task_id": "SEC-AL-004",
+          "task_name": "砌筑",
+          "default_duration_days": 2,
+          "predecessors": [
+            {
+              "task_id": "SEC-AL-003",
+              "relationship": "FS",
+              "lag_days": 0
+            }
+          ],
+          "is_key_task": true
+        }
+      ]
+    }
+  ],
+  "可编辑字段": [
+    "enabled",
+    "task_name",
+    "duration_days",
+    "predecessors",
+    "relationship_type",
+    "lag_days",
+    "is_key_task",
+    "is_inspection_node",
+    "allow_overlap",
+    "remark"
+  ],
+  "生成规则": {
+    "楼栋推断": "按楼栋逐栋生成，滞后主体结构3~4层穿插",
+    "地下室推断": "N/A"
+  }
+}

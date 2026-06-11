@@ -42,7 +42,8 @@ export function serveStatic(response, filePath) {
   }
   const extension = extname(filePath);
   response.writeHead(200, {
-    "Content-Type": mimeTypes[extension] || "text/plain; charset=utf-8"
+    "Content-Type": mimeTypes[extension] || "text/plain; charset=utf-8",
+    "Cache-Control": "no-store"
   });
   createReadStream(filePath).pipe(response);
 }

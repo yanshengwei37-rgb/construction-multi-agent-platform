@@ -1,0 +1,48 @@
+{
+  "template_id": "TP-ROOF-01",
+  "template_name": "屋面工程",
+  "template_category": "屋面工程",
+  "version": "2.0",
+  "mode_required": true,
+  "适用结构类型": ["剪力墙结构", "框架结构", "框架-剪力墙结构"],
+  "适用项目类型": ["住宅小区", "商业综合体"],
+  "是否默认启用": true,
+  "modes": [
+    {
+      "mode_id": "inverted",
+      "mode_name": "倒置法",
+      "description": "保温层在防水层之上，适用于倒置式屋面：先做隔气层→结构找坡→保温层→砂浆找平→防水层→保护层。",
+      "tasks": [
+        { "task_id": "ROOF-I-001", "task_name": "隔气层施工", "enabled": true, "sequence_no": 1, "stage": "屋面", "default_duration_days": 3, "predecessors": [{ "task_id": "屋面基层移交", "relationship": "FS", "lag_days": 0 }], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "ROOF-I-002", "task_name": "结构找坡层/轻集料混凝土找坡", "enabled": true, "sequence_no": 2, "stage": "屋面", "default_duration_days": 4, "predecessors": [{ "task_id": "ROOF-I-001", "relationship": "FS", "lag_days": 0 }], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "ROOF-I-003", "task_name": "保温层铺设（XPS/EPS等）", "enabled": true, "sequence_no": 3, "stage": "屋面", "default_duration_days": 4, "predecessors": [{ "task_id": "ROOF-I-002", "relationship": "FS", "lag_days": 0 }], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "ROOF-I-004", "task_name": "水泥砂浆找平层", "enabled": true, "sequence_no": 4, "stage": "屋面", "default_duration_days": 3, "predecessors": [{ "task_id": "ROOF-I-003", "relationship": "FS", "lag_days": 0 }], "is_key_task": true, "is_inspection_node": false },
+        { "task_id": "ROOF-I-005", "task_name": "防水层施工（SBS/高分子卷材/涂料）", "enabled": true, "sequence_no": 5, "stage": "屋面", "default_duration_days": 5, "predecessors": [{ "task_id": "ROOF-I-004", "relationship": "FS", "lag_days": 0 }], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "ROOF-I-006", "task_name": "隔离层施工", "enabled": true, "sequence_no": 6, "stage": "屋面", "default_duration_days": 2, "predecessors": [{ "task_id": "ROOF-I-005", "relationship": "FS", "lag_days": 0 }], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "ROOF-I-007", "task_name": "保护层/面层施工（细石混凝土/地砖等）", "enabled": true, "sequence_no": 7, "stage": "屋面", "default_duration_days": 5, "predecessors": [{ "task_id": "ROOF-I-006", "relationship": "FS", "lag_days": 0 }], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "ROOF-I-008", "task_name": "屋面蓄水/淋水试验", "enabled": true, "sequence_no": 8, "stage": "屋面", "default_duration_days": 2, "predecessors": [{ "task_id": "ROOF-I-007", "relationship": "FS", "lag_days": 0 }], "is_key_task": true, "is_inspection_node": true }
+      ]
+    },
+    {
+      "mode_id": "upright",
+      "mode_name": "正置法",
+      "description": "防水层在保温层之上，适用于正置式屋面：先做隔气层→找坡→砂浆找平→防水层→隔离层→保温层→找平→保护层。",
+      "tasks": [
+        { "task_id": "ROOF-U-001", "task_name": "隔气层施工", "enabled": true, "sequence_no": 1, "stage": "屋面", "default_duration_days": 3, "predecessors": [{ "task_id": "屋面基层移交", "relationship": "FS", "lag_days": 0 }], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "ROOF-U-002", "task_name": "结构找坡层/轻集料混凝土找坡", "enabled": true, "sequence_no": 2, "stage": "屋面", "default_duration_days": 4, "predecessors": [{ "task_id": "ROOF-U-001", "relationship": "FS", "lag_days": 0 }], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "ROOF-U-003", "task_name": "水泥砂浆找平层（第一道）", "enabled": true, "sequence_no": 3, "stage": "屋面", "default_duration_days": 3, "predecessors": [{ "task_id": "ROOF-U-002", "relationship": "FS", "lag_days": 0 }], "is_key_task": true, "is_inspection_node": false },
+        { "task_id": "ROOF-U-004", "task_name": "防水层施工（SBS/高分子卷材/涂料）", "enabled": true, "sequence_no": 4, "stage": "屋面", "default_duration_days": 5, "predecessors": [{ "task_id": "ROOF-U-003", "relationship": "FS", "lag_days": 0 }], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "ROOF-U-005", "task_name": "隔离层施工", "enabled": true, "sequence_no": 5, "stage": "屋面", "default_duration_days": 2, "predecessors": [{ "task_id": "ROOF-U-004", "relationship": "FS", "lag_days": 0 }], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "ROOF-U-006", "task_name": "保温层铺设（XPS/EPS等）", "enabled": true, "sequence_no": 6, "stage": "屋面", "default_duration_days": 4, "predecessors": [{ "task_id": "ROOF-U-005", "relationship": "FS", "lag_days": 0 }], "is_key_task": false, "is_inspection_node": false },
+        { "task_id": "ROOF-U-007", "task_name": "水泥砂浆找平层（第二道）", "enabled": true, "sequence_no": 7, "stage": "屋面", "default_duration_days": 3, "predecessors": [{ "task_id": "ROOF-U-006", "relationship": "FS", "lag_days": 0 }], "is_key_task": true, "is_inspection_node": false },
+        { "task_id": "ROOF-U-008", "task_name": "保护层/面层施工（细石混凝土/地砖等）", "enabled": true, "sequence_no": 8, "stage": "屋面", "default_duration_days": 5, "predecessors": [{ "task_id": "ROOF-U-007", "relationship": "FS", "lag_days": 0 }], "is_key_task": true, "is_inspection_node": true },
+        { "task_id": "ROOF-U-009", "task_name": "屋面蓄水/淋水试验", "enabled": true, "sequence_no": 9, "stage": "屋面", "default_duration_days": 2, "predecessors": [{ "task_id": "ROOF-U-008", "relationship": "FS", "lag_days": 0 }], "is_key_task": true, "is_inspection_node": true }
+      ]
+    }
+  ],
+  "可编辑字段": ["enabled", "task_name", "duration_days", "predecessors", "relationship_type", "lag_days", "is_key_task", "is_inspection_node", "allow_overlap", "remark"],
+  "生成规则": {
+    "楼栋推断": "屋面按楼栋逐栋生成",
+    "地下室推断": "N/A"
+  }
+}

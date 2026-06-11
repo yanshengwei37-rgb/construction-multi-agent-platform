@@ -1,0 +1,822 @@
+{
+  "projectType": "residential",
+  "label": "住宅项目总进度计划 WBS 库",
+  "version": "1.0.0",
+  "templateOrder": [
+    "MASTER-PREP",
+    "TP-BASE-001",
+    "TP-STR-001",
+    "TP-MEP-01",
+    "TP-SEC-01",
+    "TP-FIN-01",
+    "TP-ROOF-01",
+    "TP-EXT-01"
+  ],
+  "templates": {
+    "MASTER-PREP": {
+      "name": "施工准备",
+      "category": "施工准备",
+      "trade": "总包",
+      "owner": "项目经理部",
+      "sourceTemplateId": "MASTER-PREP",
+      "defaultTasks": [
+        {
+          "id": "prep-01",
+          "name": "临建完成",
+          "durationDays": 5,
+          "isKeyTask": true
+        },
+        {
+          "id": "prep-02",
+          "name": "施工道路完成",
+          "durationDays": 4,
+          "isKeyTask": true,
+          "predecessorId": "prep-01"
+        },
+        {
+          "id": "prep-03",
+          "name": "临水临电接入",
+          "durationDays": 3,
+          "isKeyTask": true,
+          "predecessorId": "prep-02"
+        },
+        {
+          "id": "prep-04",
+          "name": "塔吊安装验收",
+          "durationDays": 3,
+          "isKeyTask": true,
+          "predecessorId": "prep-03"
+        }
+      ]
+    },
+    "TP-BASE-001": {
+      "name": "地下室工程",
+      "category": "地下室工程",
+      "trade": "土建",
+      "owner": "土建工长",
+      "sourceTemplateId": "TP-BASE-001",
+      "defaultTasks": [
+        {
+          "id": "base-01",
+          "name": "基坑支护",
+          "durationDays": 10,
+          "isKeyTask": true
+        },
+        {
+          "id": "base-02",
+          "name": "土方开挖",
+          "durationDays": 14,
+          "isKeyTask": true,
+          "predecessorId": "base-01"
+        },
+        {
+          "id": "base-03",
+          "name": "垫层施工",
+          "durationDays": 5,
+          "isKeyTask": false,
+          "predecessorId": "base-02"
+        },
+        {
+          "id": "base-04",
+          "name": "筏板基础",
+          "durationDays": 12,
+          "isKeyTask": true,
+          "predecessorId": "base-03"
+        },
+        {
+          "id": "base-05",
+          "name": "地下室结构",
+          "durationDays": 20,
+          "isKeyTask": true,
+          "predecessorId": "base-04"
+        },
+        {
+          "id": "base-06",
+          "name": "地下室防水",
+          "durationDays": 8,
+          "isKeyTask": true,
+          "predecessorId": "base-05"
+        }
+      ]
+    },
+    "TP-STR-001": {
+      "name": "主体结构",
+      "category": "主体结构",
+      "trade": "土建",
+      "owner": "生产经理",
+      "sourceTemplateId": "TP-STR-001",
+      "defaultTasks": [
+        {
+          "id": "str-01",
+          "name": "首层结构施工",
+          "durationDays": 8,
+          "isKeyTask": true
+        },
+        {
+          "id": "str-02",
+          "name": "标准层结构施工",
+          "durationDays": 6,
+          "isKeyTask": true,
+          "predecessorId": "str-01"
+        },
+        {
+          "id": "str-03",
+          "name": "主体结构 10F",
+          "durationDays": 6,
+          "isKeyTask": true,
+          "predecessorId": "str-02"
+        },
+        {
+          "id": "str-04",
+          "name": "主体结构封顶",
+          "durationDays": 6,
+          "isKeyTask": true,
+          "predecessorId": "str-03"
+        }
+      ]
+    },
+    "TP-MEP-01": {
+      "name": "机电安装工程",
+      "category": "机电安装",
+      "trade": "机电",
+      "owner": "机电工程师",
+      "sourceTemplateId": "TP-MEP-01",
+      "spaceFirst": true,
+      "spaceOrder": [
+        "basement",
+        "tower",
+        "public",
+        "ceiling",
+        "equipment",
+        "roof",
+        "outdoor"
+      ],
+      "spaceTemplates": {
+        "basement": {
+          "label": "地下室",
+          "entityType": "basementZone",
+          "defaultSystems": [
+            "plumbing",
+            "electrical",
+            "fire",
+            "hvac"
+          ],
+          "defaultTasks": {
+            "plumbing": [
+              {
+                "id": "mep-basement-plumbing-01",
+                "name": "地下室给排水主管安装",
+                "phaseKey": "main",
+                "durationDays": 5,
+                "isKeyTask": false,
+                "code": "PD.02.01",
+                "predecessorRef": "PD.01.01"
+              },
+              {
+                "id": "mep-basement-plumbing-02",
+                "name": "地下室管道试压/冲洗",
+                "phaseKey": "commission",
+                "durationDays": 2,
+                "isKeyTask": true,
+                "predecessorId": "mep-basement-plumbing-01",
+                "code": "PD.02.05",
+                "predecessorRef": "PD.02.03"
+              }
+            ],
+            "electrical": [
+              {
+                "id": "mep-basement-electrical-01",
+                "name": "地下室电气桥架安装",
+                "phaseKey": "main",
+                "durationDays": 5,
+                "isKeyTask": false,
+                "code": "EL.02.01",
+                "predecessorRef": "EL.01.01"
+              },
+              {
+                "id": "mep-basement-electrical-02",
+                "name": "地下室配电箱柜安装",
+                "phaseKey": "terminal",
+                "durationDays": 3,
+                "isKeyTask": true,
+                "predecessorId": "mep-basement-electrical-01",
+                "code": "EL.04.01",
+                "predecessorRef": "EL.03.01"
+              }
+            ],
+            "fire": [
+              {
+                "id": "mep-basement-fire-01",
+                "name": "地下室消防主管安装",
+                "phaseKey": "main",
+                "durationDays": 5,
+                "isKeyTask": true,
+                "code": "FP.01.01",
+                "predecessorRef": "CM.01.01"
+              },
+              {
+                "id": "mep-basement-fire-02",
+                "name": "地下室消防联动调试",
+                "phaseKey": "acceptance",
+                "durationDays": 3,
+                "isKeyTask": true,
+                "predecessorId": "mep-basement-fire-01",
+                "code": "FP.02.01",
+                "predecessorRef": "FP.01.01"
+              }
+            ],
+            "hvac": [
+              {
+                "id": "mep-basement-hvac-01",
+                "name": "地下室暖通风管安装",
+                "phaseKey": "main",
+                "durationDays": 5,
+                "isKeyTask": false,
+                "code": "HV.01.01",
+                "predecessorRef": "CM.01.01"
+              },
+              {
+                "id": "mep-basement-hvac-02",
+                "name": "地下室暖通系统调试",
+                "phaseKey": "commission",
+                "durationDays": 3,
+                "isKeyTask": true,
+                "predecessorId": "mep-basement-hvac-01",
+                "code": "HV.04.01",
+                "predecessorRef": "HV.03.01"
+              }
+            ]
+          }
+        },
+        "tower": {
+          "label": "塔楼标准层",
+          "entityType": "building",
+          "defaultSystems": [
+            "plumbing",
+            "electrical",
+            "fire",
+            "hvac",
+            "weak"
+          ],
+          "defaultTasks": {
+            "plumbing": [
+              {
+                "id": "mep-tower-plumbing-01",
+                "name": "机电预留预埋",
+                "phaseKey": "embed",
+                "durationDays": 5,
+                "isKeyTask": true,
+                "code": "PD.01.01",
+                "predecessorRef": "CM.01.01"
+              },
+              {
+                "id": "mep-tower-plumbing-02",
+                "name": "标准层立管安装",
+                "phaseKey": "riser",
+                "durationDays": 4,
+                "isKeyTask": true,
+                "predecessorId": "mep-tower-plumbing-01",
+                "code": "PD.02.01",
+                "predecessorRef": "PD.01.01"
+              },
+              {
+                "id": "mep-tower-plumbing-03",
+                "name": "给排水支管安装",
+                "phaseKey": "branch",
+                "durationDays": 3,
+                "isKeyTask": false,
+                "predecessorId": "mep-tower-plumbing-02",
+                "code": "PD.02.03",
+                "predecessorRef": "PD.02.01"
+              }
+            ],
+            "electrical": [
+              {
+                "id": "mep-tower-electrical-01",
+                "name": "标准层桥架/线管安装",
+                "phaseKey": "main",
+                "durationDays": 4,
+                "isKeyTask": false,
+                "code": "EL.01.01",
+                "predecessorRef": "CM.01.01"
+              },
+              {
+                "id": "mep-tower-electrical-02",
+                "name": "电气穿线及箱盒安装",
+                "phaseKey": "terminal",
+                "durationDays": 3,
+                "isKeyTask": true,
+                "predecessorId": "mep-tower-electrical-01",
+                "code": "EL.03.01",
+                "predecessorRef": "EL.02.01"
+              }
+            ],
+            "fire": [
+              {
+                "id": "mep-tower-fire-01",
+                "name": "消防立管安装",
+                "phaseKey": "main",
+                "durationDays": 4,
+                "isKeyTask": true,
+                "code": "FP.01.01",
+                "predecessorRef": "CM.01.01"
+              },
+              {
+                "id": "mep-tower-fire-02",
+                "name": "分层隐蔽验收",
+                "phaseKey": "acceptance",
+                "durationDays": 2,
+                "isKeyTask": true,
+                "predecessorId": "mep-tower-fire-01",
+                "code": "FP.01.01",
+                "predecessorRef": "CM.01.01"
+              }
+            ],
+            "hvac": [
+              {
+                "id": "mep-tower-hvac-01",
+                "name": "标准层风管安装",
+                "phaseKey": "main",
+                "durationDays": 4,
+                "isKeyTask": false,
+                "code": "HV.01.01",
+                "predecessorRef": "CM.01.01"
+              },
+              {
+                "id": "mep-tower-hvac-02",
+                "name": "末端安装",
+                "phaseKey": "terminal",
+                "durationDays": 3,
+                "isKeyTask": false,
+                "predecessorId": "mep-tower-hvac-01",
+                "code": "HV.03.01",
+                "predecessorRef": "HV.01.01"
+              }
+            ],
+            "weak": [
+              {
+                "id": "mep-tower-weak-01",
+                "name": "弱电桥架安装",
+                "phaseKey": "main",
+                "durationDays": 3,
+                "isKeyTask": false,
+                "code": "BA.01.01",
+                "predecessorRef": "CM.01.01"
+              },
+              {
+                "id": "mep-tower-weak-02",
+                "name": "弱电末端预埋",
+                "phaseKey": "embed",
+                "durationDays": 2,
+                "isKeyTask": false,
+                "predecessorId": "mep-tower-weak-01",
+                "code": "BA.01.01",
+                "predecessorRef": "CM.01.01"
+              }
+            ]
+          }
+        },
+        "public": {
+          "label": "公区",
+          "entityType": "shared",
+          "defaultSystems": [
+            "plumbing",
+            "electrical",
+            "fire",
+            "hvac",
+            "weak"
+          ],
+          "defaultTasks": {
+            "plumbing": [
+              {
+                "id": "mep-public-plumbing-01",
+                "name": "公区管综复核",
+                "phaseKey": "coordination",
+                "durationDays": 3,
+                "isKeyTask": true,
+                "code": "PD.01.01",
+                "predecessorRef": "CM.01.01"
+              }
+            ],
+            "electrical": [
+              {
+                "id": "mep-public-electrical-01",
+                "name": "公区桥架与照明末端安装",
+                "phaseKey": "terminal",
+                "durationDays": 4,
+                "isKeyTask": false,
+                "code": "EL.02.01",
+                "predecessorRef": "EL.01.01"
+              }
+            ],
+            "fire": [
+              {
+                "id": "mep-public-fire-01",
+                "name": "公区消防末端安装",
+                "phaseKey": "terminal",
+                "durationDays": 4,
+                "isKeyTask": true,
+                "code": "FP.02.01",
+                "predecessorRef": "FP.01.01"
+              }
+            ],
+            "hvac": [
+              {
+                "id": "mep-public-hvac-01",
+                "name": "公区末端设备定位",
+                "phaseKey": "terminal",
+                "durationDays": 4,
+                "isKeyTask": false,
+                "code": "HV.03.01",
+                "predecessorRef": "HV.01.01"
+              }
+            ],
+            "weak": [
+              {
+                "id": "mep-public-weak-01",
+                "name": "公区弱电点位安装",
+                "phaseKey": "terminal",
+                "durationDays": 3,
+                "isKeyTask": false,
+                "code": "BA.01.01",
+                "predecessorRef": "CM.01.01"
+              }
+            ]
+          }
+        },
+        "ceiling": {
+          "label": "吊顶区域",
+          "entityType": "shared",
+          "defaultSystems": [
+            "plumbing",
+            "electrical",
+            "fire",
+            "hvac",
+            "weak"
+          ],
+          "defaultTasks": {
+            "plumbing": [
+              {
+                "id": "mep-ceiling-plumbing-01",
+                "name": "吊顶内给排水支管安装",
+                "phaseKey": "branch",
+                "durationDays": 3,
+                "isKeyTask": false,
+                "code": "PD.02.03",
+                "predecessorRef": "PD.02.01"
+              }
+            ],
+            "electrical": [
+              {
+                "id": "mep-ceiling-electrical-01",
+                "name": "吊顶内线管与桥架安装",
+                "phaseKey": "main",
+                "durationDays": 3,
+                "isKeyTask": false,
+                "code": "EL.01.01",
+                "predecessorRef": "CM.01.01"
+              }
+            ],
+            "fire": [
+              {
+                "id": "mep-ceiling-fire-01",
+                "name": "吊顶内喷淋支管与喷头安装",
+                "phaseKey": "terminal",
+                "durationDays": 4,
+                "isKeyTask": true,
+                "code": "FP.02.01",
+                "predecessorRef": "FP.01.01"
+              }
+            ],
+            "hvac": [
+              {
+                "id": "mep-ceiling-hvac-01",
+                "name": "吊顶内风管安装",
+                "phaseKey": "main",
+                "durationDays": 4,
+                "isKeyTask": true,
+                "code": "HV.01.01",
+                "predecessorRef": "CM.01.01"
+              }
+            ],
+            "weak": [
+              {
+                "id": "mep-ceiling-weak-01",
+                "name": "吊顶内弱电末端安装",
+                "phaseKey": "terminal",
+                "durationDays": 2,
+                "isKeyTask": false,
+                "code": "BA.02.01",
+                "predecessorRef": "BA.01.01"
+              }
+            ]
+          }
+        },
+        "equipment": {
+          "label": "机房",
+          "entityType": "shared",
+          "defaultSystems": [
+            "plumbing",
+            "electrical",
+            "fire",
+            "hvac",
+            "elevator"
+          ],
+          "defaultTasks": {
+            "plumbing": [
+              {
+                "id": "mep-equipment-plumbing-01",
+                "name": "机房设备基础复核",
+                "phaseKey": "foundation",
+                "durationDays": 3,
+                "isKeyTask": true,
+                "code": "PD.03.01",
+                "predecessorRef": "PD.02.03"
+              }
+            ],
+            "electrical": [
+              {
+                "id": "mep-equipment-electrical-01",
+                "name": "机房配电柜安装",
+                "phaseKey": "terminal",
+                "durationDays": 4,
+                "isKeyTask": true,
+                "code": "EL.04.01",
+                "predecessorRef": "EL.03.01"
+              }
+            ],
+            "fire": [
+              {
+                "id": "mep-equipment-fire-01",
+                "name": "机房消防系统安装",
+                "phaseKey": "main",
+                "durationDays": 4,
+                "isKeyTask": true,
+                "code": "FP.02.01",
+                "predecessorRef": "FP.01.01"
+              }
+            ],
+            "hvac": [
+              {
+                "id": "mep-equipment-hvac-01",
+                "name": "机房设备安装",
+                "phaseKey": "install",
+                "durationDays": 6,
+                "isKeyTask": true,
+                "code": "HV.03.02",
+                "predecessorRef": "HV.02.01"
+              },
+              {
+                "id": "mep-equipment-hvac-02",
+                "name": "机房单机调试",
+                "phaseKey": "commission",
+                "durationDays": 3,
+                "isKeyTask": true,
+                "predecessorId": "mep-equipment-hvac-01",
+                "code": "HV.03.02",
+                "predecessorRef": "HV.02.01"
+              }
+            ],
+            "elevator": [
+              {
+                "id": "mep-equipment-elevator-01",
+                "name": "电梯安装",
+                "phaseKey": "install",
+                "durationDays": 12,
+                "isKeyTask": true,
+                "code": "EL.04.01",
+                "predecessorRef": "EL.03.01"
+              },
+              {
+                "id": "mep-equipment-elevator-02",
+                "name": "电梯调试验收",
+                "phaseKey": "acceptance",
+                "durationDays": 6,
+                "isKeyTask": true,
+                "predecessorId": "mep-equipment-elevator-01",
+                "code": "EL.06.01",
+                "predecessorRef": "EL.05.02"
+              }
+            ]
+          }
+        },
+        "roof": {
+          "label": "屋面",
+          "entityType": "shared",
+          "defaultSystems": [
+            "plumbing",
+            "electrical",
+            "fire",
+            "hvac"
+          ],
+          "defaultTasks": {
+            "plumbing": [
+              {
+                "id": "mep-roof-plumbing-01",
+                "name": "屋面给排水管线收口",
+                "phaseKey": "finish",
+                "durationDays": 3,
+                "isKeyTask": false,
+                "code": "PD.02.01",
+                "predecessorRef": "PD.01.01"
+              }
+            ],
+            "electrical": [
+              {
+                "id": "mep-roof-electrical-01",
+                "name": "屋面正式电接驳",
+                "phaseKey": "finish",
+                "durationDays": 3,
+                "isKeyTask": true,
+                "code": "EL.06.01",
+                "predecessorRef": "EL.05.02"
+              }
+            ],
+            "fire": [
+              {
+                "id": "mep-roof-fire-01",
+                "name": "屋面消防系统收口",
+                "phaseKey": "finish",
+                "durationDays": 3,
+                "isKeyTask": true,
+                "code": "FP.02.01",
+                "predecessorRef": "FP.01.01"
+              }
+            ],
+            "hvac": [
+              {
+                "id": "mep-roof-hvac-01",
+                "name": "屋面设备与风管收口",
+                "phaseKey": "finish",
+                "durationDays": 4,
+                "isKeyTask": true,
+                "code": "HV.01.01",
+                "predecessorRef": "CM.01.01"
+              }
+            ]
+          }
+        },
+        "outdoor": {
+          "label": "室外接驳",
+          "entityType": "shared",
+          "defaultSystems": [
+            "plumbing",
+            "electrical",
+            "fire"
+          ],
+          "defaultTasks": {
+            "plumbing": [
+              {
+                "id": "mep-outdoor-plumbing-01",
+                "name": "室外给排水接驳",
+                "phaseKey": "handover",
+                "durationDays": 4,
+                "isKeyTask": true,
+                "code": "PD.02.01",
+                "predecessorRef": "PD.01.01"
+              }
+            ],
+            "electrical": [
+              {
+                "id": "mep-outdoor-electrical-01",
+                "name": "正式水电接入",
+                "phaseKey": "handover",
+                "durationDays": 4,
+                "isKeyTask": true,
+                "code": "EL.06.01",
+                "predecessorRef": "EL.05.02"
+              }
+            ],
+            "fire": [
+              {
+                "id": "mep-outdoor-fire-01",
+                "name": "消防验收资料移交",
+                "phaseKey": "handover",
+                "durationDays": 3,
+                "isKeyTask": true,
+                "code": "FP.01.01",
+                "predecessorRef": "CM.01.01"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "TP-SEC-01": {
+      "name": "二次结构及砌体工程",
+      "category": "二次结构",
+      "trade": "土建",
+      "owner": "质量负责人",
+      "sourceTemplateId": "TP-SEC-01",
+      "defaultTasks": [
+        {
+          "id": "sec-01",
+          "name": "砌体插入",
+          "durationDays": 8,
+          "isKeyTask": true
+        },
+        {
+          "id": "sec-02",
+          "name": "抹灰施工",
+          "durationDays": 6,
+          "isKeyTask": true,
+          "predecessorId": "sec-01"
+        },
+        {
+          "id": "sec-03",
+          "name": "吊顶龙骨",
+          "durationDays": 4,
+          "isKeyTask": false,
+          "predecessorId": "sec-02"
+        },
+        {
+          "id": "sec-04",
+          "name": "吊顶封板",
+          "durationDays": 4,
+          "isKeyTask": true,
+          "predecessorId": "sec-03"
+        }
+      ]
+    },
+    "TP-FIN-01": {
+      "name": "装饰装修工程",
+      "category": "装饰装修",
+      "trade": "装饰",
+      "owner": "精装经理",
+      "sourceTemplateId": "TP-FIN-01",
+      "defaultTasks": [
+        {
+          "id": "fin-01",
+          "name": "精装样板",
+          "durationDays": 8,
+          "isKeyTask": true
+        },
+        {
+          "id": "fin-02",
+          "name": "公区装修",
+          "durationDays": 12,
+          "isKeyTask": true,
+          "predecessorId": "fin-01"
+        }
+      ]
+    },
+    "TP-EXT-01": {
+      "name": "室外配套工程",
+      "category": "室外工程",
+      "trade": "室外",
+      "owner": "室外分包",
+      "sourceTemplateId": "TP-EXT-01",
+      "defaultTasks": [
+        {
+          "id": "ext-01",
+          "name": "室外管网施工",
+          "durationDays": 10,
+          "isKeyTask": true
+        },
+        {
+          "id": "ext-02",
+          "name": "道路及铺装施工",
+          "durationDays": 10,
+          "isKeyTask": false,
+          "predecessorId": "ext-01"
+        },
+        {
+          "id": "ext-03",
+          "name": "园林绿化施工",
+          "durationDays": 10,
+          "isKeyTask": false,
+          "predecessorId": "ext-02"
+        },
+        {
+          "id": "ext-04",
+          "name": "室外配套验收",
+          "durationDays": 3,
+          "isKeyTask": true,
+          "predecessorId": "ext-03"
+        }
+      ]
+    },
+    "TP-ROOF-01": {
+      "name": "屋面工程",
+      "category": "屋面工程",
+      "trade": "土建",
+      "owner": "土建工长",
+      "sourceTemplateId": "TP-ROOF-01",
+      "defaultTasks": [
+        {
+          "id": "roof-01",
+          "name": "屋面防水施工",
+          "durationDays": 7,
+          "isKeyTask": true
+        },
+        {
+          "id": "roof-02",
+          "name": "屋面保护层/保温层施工",
+          "durationDays": 5,
+          "isKeyTask": false,
+          "predecessorId": "roof-01"
+        }
+      ]
+    }
+  }
+}
